@@ -35,6 +35,11 @@ create table league (
                         name varchar(100)
 );
 
+create table championship (
+                              id serial primary key,
+                              period_id integer references period(id)
+)
+
 -- Club table
 create table club (
                       id serial primary key,
@@ -43,37 +48,26 @@ create table club (
                       creation_date timestamp,
                       stadium_id integer references stadium(id),
                       coach_id integer references coach(id),
-                      id_league integer references league(id)
+                      league_id integer references league(id)  -- club maromaro anatina league iray
 );
-
-create table championship (
-                              id serial primary key,
-                              id_period integer references period(id)
-)
 
 -- Match table
-create table match (
+create table matches (
                        id serial primary key,
                        date timestamp,
-                       stadium_id integer references stadium(id),
-                       id_championship references championship(id)
+                       stadium_id integer references stadium(id), -- manana stade iray
+                       championship_id references championship(id)  ,-- match maromaro anaty championnat iray
+                        home_club_id integer references club(id),
+                        away_club_id integer references club(id),
+                        check (home_club_id <> away_club_id) -- les 2 clubs sont different
 );
 
--- ClubsInMatch table
-create table clubs_in_match (
-                                id serial primary key,
-                                match_id integer references match(id),
-                                club_1_id integer references club(id),
-                                club_2_id integer references club(id),
-                                home_club_id integer references club(id),
-                                away_club_id integer references club(id)
-);
 
 create table score (
                        id serial primary key,
                        rang integer,
-                       id_match integer references match(id),
-                       id_club integer references club(id),
+                       matches_id integer references matches(id),
+                       club_id integer references club(id),
                        points integer
 );
 

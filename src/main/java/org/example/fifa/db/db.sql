@@ -56,7 +56,6 @@ create table match (
                        id serial primary key,
                        date timestamp,
                        stadium_id integer references stadium(id),
-                       id_clubs_in_match integer references clubs_in_match(id),
                        id_championship references championship(id)
 );
 

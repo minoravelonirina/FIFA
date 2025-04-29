@@ -3,6 +3,5 @@ package org.example.fifa.repository.mapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ChampionshipMapper {
-
+public class SeasonMapper {
 }

@@ -1,34 +1,25 @@
-package org.example.fifa.model;
+package org.example.fifa.rest.dto;
 
+import org.example.fifa.model.Club;
 import org.example.fifa.model.enums.Status;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Match {
+public class MatchDto {
     private String id;
     private LocalDateTime matchDatetime;
     private String stadium;
-    private Club clubPlayingHome;
-    private Club clubPlayingAway;
+    private ClubWithGoalsDto clubPlayingHome;
+    private ClubWithGoalsDto clubPlayingAway;
     private Status actualStatus;
 
-    public Match(){};
-
-    public Match(String id, LocalDateTime matchDatetime, String stadium, Club clubPlayingHome, Club clubPlayingAway, Status actualStatus) {
+    public MatchDto(String id, LocalDateTime matchDatetime, String stadium, ClubWithGoalsDto clubPlayingHome, ClubWithGoalsDto clubPlayingAway, Status actualStatus) {
         this.id = id;
         this.matchDatetime = matchDatetime;
         this.stadium = stadium;
         this.clubPlayingHome = clubPlayingHome;
         this.clubPlayingAway = clubPlayingAway;
-        this.actualStatus = actualStatus;
-    }
-
-    public Status getActualStatus() {
-        return actualStatus;
-    }
-
-    public void setActualStatus(Status actualStatus) {
         this.actualStatus = actualStatus;
     }
 
@@ -56,28 +47,36 @@ public class Match {
         this.stadium = stadium;
     }
 
-    public Club getClubPlayingHome() {
+    public ClubWithGoalsDto getClubPlayingHome() {
         return clubPlayingHome;
     }
 
-    public void setClubPlayingHome(Club clubPlayingHome) {
+    public void setClubPlayingHome(ClubWithGoalsDto clubPlayingHome) {
         this.clubPlayingHome = clubPlayingHome;
     }
 
-    public Club getClubPlayingAway() {
+    public ClubWithGoalsDto getClubPlayingAway() {
         return clubPlayingAway;
     }
 
-    public void setClubPlayingAway(Club clubPlayingAway) {
+    public void setClubPlayingAway(ClubWithGoalsDto clubPlayingAway) {
         this.clubPlayingAway = clubPlayingAway;
+    }
+
+    public Status getActualStatus() {
+        return actualStatus;
+    }
+
+    public void setActualStatus(Status actualStatus) {
+        this.actualStatus = actualStatus;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Match match = (Match) o;
-        return Objects.equals(id, match.id) && Objects.equals(matchDatetime, match.matchDatetime) && Objects.equals(stadium, match.stadium) && Objects.equals(clubPlayingHome, match.clubPlayingHome) && Objects.equals(clubPlayingAway, match.clubPlayingAway) && Objects.equals(actualStatus, match.actualStatus);
+        MatchDto matchDto = (MatchDto) o;
+        return Objects.equals(id, matchDto.id) && Objects.equals(matchDatetime, matchDto.matchDatetime) && Objects.equals(stadium, matchDto.stadium) && Objects.equals(clubPlayingHome, matchDto.clubPlayingHome) && Objects.equals(clubPlayingAway, matchDto.clubPlayingAway) && actualStatus == matchDto.actualStatus;
     }
 
     @Override
@@ -87,7 +86,7 @@ public class Match {
 
     @Override
     public String toString() {
-        return "Match{" +
+        return "MatchDto{" +
                 "id='" + id + '\'' +
                 ", matchDatetime=" + matchDatetime +
                 ", stadium='" + stadium + '\'' +

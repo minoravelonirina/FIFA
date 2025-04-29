@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class League {
-    private Long id;
+    private String id;
     private String leagueNam;
     private List<Club> clubs;
     private String country;
 
-    public League(Long id, String leagueNam, List<Club> clubs, String country) {
+    public League(String id, String leagueNam, List<Club> clubs, String country) {
         this.id = id;
         this.leagueNam = leagueNam;
         this.clubs = clubs;
@@ -18,11 +18,11 @@ public class League {
 
     public League(){};
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

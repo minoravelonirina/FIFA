@@ -3,11 +3,11 @@ package org.example.fifa.model;
 import java.util.Objects;
 
 public class Coach {
-    private Long id;
+    private String id;
     private String coachName;
     private String nationality;
 
-    public Coach(Long id, String coachName, String nationality) {
+    public Coach(String id, String coachName, String nationality) {
         this.id = id;
         this.coachName = coachName;
         this.nationality = nationality;
@@ -15,11 +15,11 @@ public class Coach {
 
     public Coach(){};
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

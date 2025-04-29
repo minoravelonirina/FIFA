@@ -6,7 +6,7 @@ public interface CrudDAO<E> {
     List<E> findAll();
     E findById(Long id);
     E findByName(String name);
-    E save(E entity);
-    E update(E entity);
+    List<E> save(List<E> entity);
+    List<E> update(List<E> entities);
     void delete(E entity);
 }

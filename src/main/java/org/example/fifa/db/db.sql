@@ -5,7 +5,7 @@ CREATE DATABASE championnat_europeenne;
 \c championnat_europeenne
 
 -- Enum types
-create type position as enum ('GOALKEEPER', 'MIDFIELDER', 'FORWARD', 'DEFENDER');
+create type position as enum ('GOAL_KEEPER', 'MIDFIELDER', 'STRIKER', 'DEFENSE');
 
 -- Player table
 create table player (
@@ -34,11 +34,6 @@ create table league (
                         id serial primary key,
                         name varchar(100)
 );
-
-create table championship (
-                              id serial primary key,
-                              period_id integer references period(id)
-)
 
 -- Club table
 create table club (
@@ -71,9 +66,16 @@ create table score (
                        points integer
 );
 
-create table period (
+create table season (
                         id serial primary key,
-                        date_format_string varchar(20);
+                        status varchar(20),
+                        year integer,
+                        alias varchar(20)
+);
+
+create table championship (
+                              id serial primary key,
+                              season_id integer references season(id)
 );
 
 create table ranking (

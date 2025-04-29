@@ -1,0 +1,4 @@
+package org.example.fifa.db;
+
+public class DataSourceConfig {
+}

@@ -21,7 +21,6 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     private final List<String> publicEndpoints = List.of(
             "/clubs",
-            "/clubs/*/test",
             "/clubs/*/coach",
             "/clubs/**",
             "/players",

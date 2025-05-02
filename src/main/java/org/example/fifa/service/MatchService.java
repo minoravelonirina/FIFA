@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class MatchService {
         return null;
     }
 
-    public ResponseEntity<Object> getAll(LocalDate seasonYear, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals){
+    public ResponseEntity<Object> getAll(LocalDate seasonYear, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals) throws SQLException {
         matchRepository.findAll(seasonYear, matchStatus, clubPlayingName, matchAfter, matchBeforeOrEquals);
         return null;
     }

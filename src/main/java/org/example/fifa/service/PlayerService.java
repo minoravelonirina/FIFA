@@ -50,8 +50,4 @@ public class PlayerService  {
     public Player save(Player player) {
         return playerRepository.save(player);
     }
-
-    public void deleteById(String id) {
-        playerRepository.deleteById(id);
-    }
 }

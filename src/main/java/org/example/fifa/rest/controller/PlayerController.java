@@ -55,10 +55,4 @@ public class PlayerController {
         }
         return ResponseEntity.ok(player);
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePlayer(@PathVariable String id) {
-        playerService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
 }

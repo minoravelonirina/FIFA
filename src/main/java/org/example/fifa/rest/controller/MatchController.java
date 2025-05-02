@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,10 +23,10 @@ public class MatchController {
 
     @GetMapping("/matches/{seasonYear}")
     public ResponseEntity<Object> getAllMatches(@PathVariable LocalDate seasonYear,
-                                                @RequestParam Status matchStatus,
-                                                @RequestParam String clubPlayingName,
-                                                @RequestParam LocalDate matchAfter,
-                                                @RequestParam LocalDate matchBeforeOrEquals){
+                                                @RequestParam(required = false) Status matchStatus,
+                                                @RequestParam(required = false) String clubPlayingName,
+                                                @RequestParam(required = false) LocalDate matchAfter,
+                                                @RequestParam(required = false) LocalDate matchBeforeOrEquals) throws SQLException {
         return matchService.getAll(seasonYear, matchStatus, clubPlayingName, matchAfter, matchBeforeOrEquals);
     }
 

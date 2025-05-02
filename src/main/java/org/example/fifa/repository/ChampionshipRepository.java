@@ -20,7 +20,7 @@ public class ChampionshipRepository implements CrudDAO<Championship>{
     }
 
     @Override
-    public Championship findById(Long id) {
+    public Championship findById(String id) {
         return null;
     }
 

@@ -1,8 +1,8 @@
 package org.example.fifa.model.enums;
 
 public enum Position {
-    GOALKEEPER,
+    GOAL_KEEPER,
     MIDFIELDER,
-    FORWARD,
-    DEFENDER
+    STRIKER,
+    DEFENSE
 }

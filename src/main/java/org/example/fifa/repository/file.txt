@@ -1,0 +1,69 @@
+public List<Player> getPlayersByClubId(String id){
+        List<Player> players = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "select * from player where club_id = ?"
+             )) {
+            statement.setString(1, id);
+            try (ResultSet resultSet){
+
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+// CLUB ///
+
+    // PUT http://localhost:8080/clubs/{id}/players
+        Les joueurs fournis dans le corps de la requête remplacent les joueurs existants dans le club.
+        Dans le cas où un joueur est détaché du club, il est toujours possible de récupérer ses statistiques individuelles, et les statistiques collectives ne sont pas modifiées.
+        Par exemple, si un joueur a marqué 10 buts durant la saison, même s’il ne fait plus partie du club, les statistiques du club (buts marqués) ne changent pas.
+        Enfin, il ne doit plus apparaître dans la liste des joueurs pouvant effectuer des actions pour les matchs restants, si la saison n’est pas encore terminée.
+        Dans le cas où l’un des joueurs existants est encore attaché à un autre club, l’API doit retourner une erreur 400 BAD_REQUEST.
+
+
+    // POST http://localhost:8080/clubs/{id}/players
+        Les joueurs fournis dans le corps de la requête sont créés s’ils n’existent pas, ou rattachés au club s’ils ne sont actuellement attachés à aucun club.
+        Dans le cas où l’un des joueurs est déjà rattaché à un autre club, l’API doit retourner une erreur 400 BAD_REQUEST.
+        De plus, si un joueur existe déjà et est identifié par son identifiant (ID), les valeurs fournies dans la requête ne mettent pas à jour ses attributs existants.
+
+
+    // GET : http://localhost:8080/clubs/statistics/{seasonYear}
+    hasToBeClassified: boolean
+                       La valeur par défaut est false. Dans ce cas, la liste des statistiques est retournée triée par nom de club en ordre croissant (ASC).
+                       Si la valeur fournie est true, alors la liste des statistiques est retournée triée par classement.
+                       Le classement est calculé en respectant l’ordre suivant des facteurs :
+                       Points de classement : le club ayant le plus de points de classement est classé en premier.
+                       Différence de buts : si plusieurs clubs ont le même nombre de points, celui ayant la meilleure différence de buts est classé en premier.
+                       Nombre de clean sheets : si plusieurs clubs ont le même nombre de points et la même différence de buts, celui ayant le plus de clean sheets (matchs sans encaisser de but) est classé en premier.
+
+
+
+/// MATCH   /////
+    // POST http://localhost:8080/matchMaker/{seasonYear}
+        Seules les saisons ayant le statut STARTED peuvent générer des matchs.
+        Si le statut de la saison est NOT_STARTED ou FINISHED, l’API doit retourner une erreur 400 BAD_REQUEST.
+        Si les matchs de la saison ont déjà été générés, l’API doit également retourner une erreur 400 BAD_REQUEST.
+        Sinon, deux matchs doivent être créés pour chaque paire de clubs : un match à domicile ("HOME") et un match à l'extérieur ("AWAY").
+        Consultez les instructions dans le contexte pour plus d’explications et d’exemples.
+        Enfin, si l’année de la saison fournie (seasonYear) n’existe pas, l’API doit retourner une erreur 404 NOT_FOUND.
+
+
+    // PUT http://localhost:8080/matches/{id}/status
+       L’ordre suivant des statuts doit être respecté : NOT_STARTED > STARTED > FINISHED.
+       En cas de tentative de changement de statut dans un ordre non conforme, une erreur 400 BAD_REQUEST doit être retournée.
+       Lorsque le statut d’un match passe à FINISHED, les classements et statistiques des clubs doivent être mis à jour.
+       Cela signifie que, après qu’un match est terminé, la réponse retournée par GET /clubs/statistics/{seasonYear} doit refléter les nouvelles données.
+       Rappel des règles de points attribués selon le résultat d’un match :
+       En cas de victoire, le club gagnant obtient 3 points.
+       En cas de match nul, chaque club obtient 1 point.
+       En cas de défaite, le club perdant obtient 0 point.
+
+
+    // POST  http://localhost:8080/matches/{id}/goal
+        Seuls les matchs ayant le statut STARTED peuvent recevoir des buts.
+        Si le match est en statut NOT_STARTED ou FINISHED, l’API doit retourner une erreur 400 BAD_REQUEST.
+        Après chaque requête (ajout d’un but), les statistiques du joueur buteur doivent être mises à jour.
+        Cela signifie qu’après qu’un but est marqué, la réponse retournée par GET /players/{id}/statistics/{seasonYear} doit refléter cette mise à jour.

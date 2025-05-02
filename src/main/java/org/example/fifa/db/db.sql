@@ -1,6 +1,6 @@
 \ c postgres drop database if exists championnat_europeenne;
 CREATE DATABASE championnat_europeenne;
-\ c championnat_europeenne -- Enum types
+\ c championnat_europeenne
 create type player_position as enum (
     'GOAL_KEEPER',
     'MIDFIELDER',
@@ -9,13 +9,7 @@ create type player_position as enum (
 );
 create type status as enum ('NOT_STARTED', 'STARTED', 'FINISHED');
 create type duration_unit as enum ('SECOND', 'MINUTE', 'HOUR');
-create type championship as enum (
-    'PREMIER_LEAGUE',
-    'LA_LIGA',
-    'BUNDESLIGA',
-    'SERIA',
-    'LIGUE_1'
-);
+
 
 create table season (
                         id varchar primary key,
@@ -37,7 +31,7 @@ create table club (
                       year_creation integer,
                       stadium varchar(100),
                       coach_id varchar references coach(id) not null,
-                      championship championship not null
+                      league varchar(100)
 );
 
 create table player (
@@ -94,13 +88,6 @@ create table player_statistics (
                                    unique(player_id, season_id)
 );
 
-
-/*create table period (
-    id serial primary key,
-    date_format_string varchar(20);
-);*/
-
-
 -- 1. Insertion de la saison 2024-2025
 INSERT INTO season (id, year, alias, status)
 VALUES ('S2024-2025', 2024, 'S2024-2025', 'NOT_STARTED');
@@ -111,7 +98,7 @@ INSERT INTO coach (id, name, nationality) VALUES
                                               ('C2', 'Hansi Flick', 'Allemand');
 
 -- 3. Insertion des clubs
-INSERT INTO club (id, name, acronym, year_creation, stadium, coach_id, championship) VALUES
+INSERT INTO club (id, name, acronym, year_creation, stadium, coach_id, league) VALUES
                                                                                          ('CL-RMA', 'Real Madrid FC', 'RMA', 1902, 'Santiago Bernabeu', 'C1', 'LA_LIGA'),
                                                                                          ('CL-FCB', 'FC Barcelone', 'FCB', 1899, 'Lluís Companys', 'C2', 'LA_LIGA'),
                                                                                          ('CL-ATM', 'Atletico Madrid', 'ATM', 1880, 'Metropolitano', 'C2', 'LA_LIGA'),
@@ -148,5 +135,4 @@ INSERT INTO player_statistics (id, player_id, season_id, scored_goals, playing_t
                                                                                                                   ('PS2', 'P2', 'S2024-2025', 0, 0, 'MINUTE'),
                                                                                                                   ('PS3', 'P3', 'S2024-2025', 0, 0, 'MINUTE'),
                                                                                                                   ('PS4', 'P4', 'S2024-2025', 0, 0, 'MINUTE');
-
 

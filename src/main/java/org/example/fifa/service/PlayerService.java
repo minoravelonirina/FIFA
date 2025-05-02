@@ -1,5 +1,6 @@
 package org.example.fifa.service;
 
+import org.example.fifa.model.ClubPlayer;
 import org.example.fifa.model.Player;
 import org.example.fifa.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,24 +10,48 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Component
 public class PlayerService  {
-    @Autowired private PlayerRepository playerRepository;
+    private final PlayerRepository playerRepository;
 
-    public ResponseEntity<Object> getAllPlayers(){
-        playerRepository.findAll();
-        return null;
+    @Autowired
+    public PlayerService(PlayerRepository playerRepository) {
+        this.playerRepository = playerRepository;
     }
 
-    public ResponseEntity<Object> updatePlayerList(List<Player> players){
-        playerRepository.update(players);
-        return null;
+    public List<ClubPlayer> findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
+        List<Player> players = playerRepository.findAll(name, ageMinimum, ageMaximum, clubName);
+        return players.stream()
+                .map(player -> {
+                    ClubPlayer clubPlayer = new ClubPlayer();
+                    clubPlayer.setId(player.getId());
+                    clubPlayer.setName(player.getName());
+                    clubPlayer.setNumber(player.getNumber());
+                    clubPlayer.setAge(player.getAge());
+                    clubPlayer.setPosition(player.getPosition());
+                    clubPlayer.setNationality(player.getNationality());
+                    //clubPlayer.setClubId(player.getClubId());
+                    return clubPlayer;
+                })
+                .collect(Collectors.toList());
     }
 
-    public ResponseEntity<Object> getStatisticOfSpecificPlayer(String idPlayer, LocalDate seasonYear){
-        playerRepository.getStatisticOfSpecificPlayer(idPlayer, seasonYear);
-        return null;
+    public Player findById(String id) {
+        return playerRepository.findById(id);
+    }
+
+    public List<Player> findByClubId(String clubId) {
+        return playerRepository.findByClubId(clubId);
+    }
+
+    public Player save(Player player) {
+        return playerRepository.save(player);
+    }
+
+    public void deleteById(String id) {
+        playerRepository.deleteById(id);
     }
 }

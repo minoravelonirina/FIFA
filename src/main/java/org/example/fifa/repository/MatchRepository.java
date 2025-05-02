@@ -23,7 +23,7 @@ public class MatchRepository implements CrudDAO<Match>{
     }
 
     @Override
-    public Match findById(Long id) {
+    public Match findById(String id) {
         return null;
     }
 
@@ -46,11 +46,11 @@ public class MatchRepository implements CrudDAO<Match>{
     public void delete(Match entity) {
     }
 
-    public List<Match> createAllMatches(String seasonYear, List<Match> matches){
+    public List<Match> createAllMatches(LocalDate seasonYear, List<Match> matches){
         return null;
     }
 
-    public List<Match> findAll(String id, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals){
+    public List<Match> findAll(LocalDate seasonYear, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals){
         return null;
     }
 
@@ -58,7 +58,7 @@ public class MatchRepository implements CrudDAO<Match>{
         return null;
     }
 
-    public List<MatchDto> addGoalsInMatch(String id, List<>){
+    public List<MatchDto> saveGoalsInMatch(String id ){
         return null;
     }
 }

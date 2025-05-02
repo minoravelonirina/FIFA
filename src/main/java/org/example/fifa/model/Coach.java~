@@ -4,12 +4,12 @@ import java.util.Objects;
 
 public class Coach {
     private String id;
-    private String name;
+    private String coachName;
     private String nationality;
 
     public Coach(String id, String coachName, String nationality) {
         this.id = id;
-        this.name = coachName;
+        this.coachName = coachName;
         this.nationality = nationality;
     }
 
@@ -23,12 +23,12 @@ public class Coach {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getCoachName() {
+        return coachName;
     }
 
-    public void setName(String coachName) {
-        this.name = coachName;
+    public void setCoachName(String coachName) {
+        this.coachName = coachName;
     }
 
     public String getNationality() {
@@ -44,19 +44,19 @@ public class Coach {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Coach coach = (Coach) o;
-        return Objects.equals(id, coach.id) && Objects.equals(name, coach.name) && Objects.equals(nationality, coach.nationality);
+        return Objects.equals(id, coach.id) && Objects.equals(coachName, coach.coachName) && Objects.equals(nationality, coach.nationality);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, nationality);
+        return Objects.hash(id, coachName, nationality);
     }
 
     @Override
     public String toString() {
         return "Coach{" +
                 "id=" + id +
-                ", coachName='" + name + '\'' +
+                ", coachName='" + coachName + '\'' +
                 ", nationality='" + nationality + '\'' +
                 '}';
     }

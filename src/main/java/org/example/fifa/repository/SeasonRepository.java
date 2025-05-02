@@ -22,7 +22,7 @@ public class SeasonRepository implements CrudDAO<Season> {
     }
 
     @Override
-    public Season findById(Long id) {
+    public Season findById(String id) {
         return null;
     }
 

@@ -34,7 +34,7 @@ public class ClubController {
     }
 
     @PutMapping("/clubs/{id}/players")
-    public ResponseEntity<Object> updatePlayers(@PathVariable String id, @RequestBody List<Player> players) throws SQLException {
+    public ResponseEntity<Object> updatePlayers(@PathVariable String id, @RequestBody List<Player> players){
         return clubService.changePlayerOfClub(id, players);
     }
 

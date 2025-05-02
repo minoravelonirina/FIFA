@@ -1,5 +1,6 @@
 package org.example.fifa.rest.controller;
 
+import org.example.fifa.model.ClubPlayer;
 import org.example.fifa.model.Player;
 import org.example.fifa.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,28 +12,53 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@Component
+@RequestMapping("/players")
 public class PlayerController {
-    @Autowired private PlayerService playerService;
+    private final PlayerService playerService;
 
-    @GetMapping("/players")
-    public ResponseEntity<Object> getAll(@RequestParam(required = false) String name,
-                                         @RequestParam(required = false) int ageMinimum,
-                                         @RequestParam(required = false) int ageMaximum,
-                                         @RequestParam(required = false) String clubName){
-        return playerService.getAllPlayers();
+    @Autowired
+    public PlayerController(PlayerService playerService) {
+        this.playerService = playerService;
     }
 
-    @PutMapping("/players")
-    public ResponseEntity<Object> updatePlayers(@RequestBody List<Player> players){
-        return playerService.updatePlayerList(players);
+    @GetMapping
+    public ResponseEntity<List<ClubPlayer>> getAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Integer ageMinimum,
+            @RequestParam(required = false) Integer ageMaximum,
+            @RequestParam(required = false) String clubName) {
+        List<ClubPlayer> players = playerService.findPlayers(name, ageMinimum, ageMaximum, clubName);
+        return ResponseEntity.ok(players);
     }
 
-    @GetMapping("/players/{id}/statistics/{seasonYear}")
-    public ResponseEntity<Object> getStatisticOfPlayer(@PathVariable String id,
-                                                       @PathVariable LocalDate seasonYear){
-        return playerService.getStatisticOfSpecificPlayer(id, seasonYear);
+    @PutMapping
+    public ResponseEntity<List<Player>> updatePlayers(@RequestBody List<Player> players) {
+        List<Player> updatedPlayers = players.stream()
+                .map(playerService::save)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(updatedPlayers);
     }
 
+    @GetMapping("/{id}/statistics/{seasonYear}")
+    public ResponseEntity<Object> getStatisticOfPlayer(
+            @PathVariable String id,
+            @PathVariable LocalDate seasonYear) {
+        // TO DO
+        return ResponseEntity.notFound().build();
+    }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Player> getPlayerById(@PathVariable String id) {
+        Player player = playerService.findById(id);
+        if (player == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(player);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePlayer(@PathVariable String id) {
+        playerService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

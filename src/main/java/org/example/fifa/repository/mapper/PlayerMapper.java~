@@ -1,6 +1,5 @@
 package org.example.fifa.repository.mapper;
 
-import org.example.fifa.model.Club;
 import org.example.fifa.model.Player;
 import org.example.fifa.model.enums.Position;
 import org.example.fifa.rest.dto.PlayerDto;
@@ -37,7 +36,7 @@ public class PlayerMapper {
         return player;
     }
 
-    public Player mapPlayer(ResultSet rs) throws SQLException {
+    public Player mapDto(ResultSet rs) throws SQLException {
         Player player = new Player();
         player.setId(rs.getString("id"));
         player.setName(rs.getString("name"));
@@ -47,4 +46,5 @@ public class PlayerMapper {
         player.setPosition(Position.valueOf(rs.getString("position")));
         return player;
     }
+
 }

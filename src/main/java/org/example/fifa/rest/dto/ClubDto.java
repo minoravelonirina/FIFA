@@ -1,5 +1,6 @@
 package org.example.fifa.rest.dto;
 
+import org.example.fifa.model.Club;
 import org.example.fifa.model.Coach;
 
 import java.time.LocalDate;
@@ -9,17 +10,17 @@ public class ClubDto {
     private String id;
     private String name;
     private String acronym;
-    private LocalDate creationDate;
+    private int yearCreation;
     private String stadium;
     private Coach coach;
 
-    public ClubDto(String id, String name, String acronym, LocalDate creationDate, String stadium, Coach coach) {
-        this.id = id;
-        this.name = name;
-        this.acronym = acronym;
-        this.creationDate = creationDate;
-        this.stadium = stadium;
-        this.coach = coach;
+    public ClubDto(Club club) {
+        this.id = club.getId();
+        this.name = club.getName();
+        this.acronym = club.getAcronym();
+        this.yearCreation = club.getYearCreation();
+        this.stadium = club.getStadium();
+        this.coach = club.getCoach();
     }
 
     public ClubDto(){};
@@ -48,12 +49,12 @@ public class ClubDto {
         this.acronym = acronym;
     }
 
-    public LocalDate getCreationDate() {
-        return creationDate;
+    public int getYearCreation() {
+        return yearCreation;
     }
 
-    public void setCreationDate(LocalDate creationDate) {
-        this.creationDate = creationDate;
+    public void setYearCreation(int yearCreation) {
+        this.yearCreation = yearCreation;
     }
 
     public String getStadium() {
@@ -77,12 +78,12 @@ public class ClubDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ClubDto clubDto = (ClubDto) o;
-        return Objects.equals(id, clubDto.id) && Objects.equals(name, clubDto.name) && Objects.equals(acronym, clubDto.acronym) && Objects.equals(creationDate, clubDto.creationDate) && Objects.equals(stadium, clubDto.stadium) && Objects.equals(coach, clubDto.coach);
+        return Objects.equals(id, clubDto.id) && Objects.equals(name, clubDto.name) && Objects.equals(acronym, clubDto.acronym) && Objects.equals(yearCreation, clubDto.yearCreation) && Objects.equals(stadium, clubDto.stadium) && Objects.equals(coach, clubDto.coach);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, acronym, creationDate, stadium, coach);
+        return Objects.hash(id, name, acronym, yearCreation, stadium, coach);
     }
 
     @Override
@@ -91,7 +92,7 @@ public class ClubDto {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", acronym='" + acronym + '\'' +
-                ", creationDate=" + creationDate +
+                ", creationDate=" + yearCreation +
                 ", stadium='" + stadium + '\'' +
                 ", coach=" + coach +
                 '}';

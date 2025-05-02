@@ -1,7 +1,6 @@
 package org.example.fifa.rest.controller;
 
 import org.example.fifa.model.Club;
-import org.example.fifa.model.Coach;
 import org.example.fifa.model.Player;
 import org.example.fifa.service.ClubService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +38,12 @@ public class ClubController {
     }
 
     @PostMapping("/clubs/{id}/players")
-    public ResponseEntity<Object> addPlayers(@PathVariable String id, List<Player> players){
+    public ResponseEntity<Object> addPlayers(@PathVariable String id, @RequestBody List<Player> players){
         return clubService.addPlayersInClub(id, players);
     }
 
     @GetMapping("/clubs/statistics/{seasonYear}")
-    public ResponseEntity<Object> getClubsStatistic(@PathVariable LocalDate seasonYear, @RequestParam boolean hasToBeClassified){
-        return clubService.getClubsStatistics(seasonYear, hasToBeClassified);
+    public ResponseEntity<Object> getClubsStatistic(@PathVariable LocalDate seasonYear, @RequestParam boolean hasToBeClassified) throws SQLException {
+        return clubService.getClubsStatistics(seasonYear.getYear(), hasToBeClassified);
     }
-
 }

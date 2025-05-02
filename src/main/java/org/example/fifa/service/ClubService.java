@@ -7,6 +7,7 @@ import org.example.fifa.repository.ClubRepository;
 import org.example.fifa.repository.CoachRepository;
 import org.example.fifa.repository.PlayerRepository;
 import org.example.fifa.rest.dto.ClubDto;
+import org.example.fifa.rest.dto.ClubStatistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -51,17 +53,36 @@ public class ClubService {
     }
 
     public ResponseEntity<Object> changePlayerOfClub(String id, List<Player> players) throws SQLException {
-        playerRepository.changePlayersByClubId(id, players);
-        return null;
+        List<Player> actualPlayers = playerRepository.findByClubId(id);
+        if (actualPlayers.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The specific club of id "+id+ " is not found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(playerRepository.changePlayersByClubId(id, players));
     }
 
     public ResponseEntity<Object> addPlayersInClub(String id, List<Player> playerList){
-        playerRepository.addNewOrExistingPlayersInCLub(id, playerList);
-        return null;
+        if (playerList.isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The list of players is empty");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(playerRepository.addNewOrExistingPlayersInCLub(id, playerList));
     }
 
-    public ResponseEntity<Object> getClubsStatistics(LocalDate seasonYear, boolean hasToBeClassified){
-        clubRepository.getAllStatistic(seasonYear, hasToBeClassified);
-        return null;
+
+
+    public ResponseEntity<Object> getClubsStatistics(int seasonYear, boolean hasToBeClassified) throws SQLException {
+        List<ClubStatistics> stats = clubRepository.getAllStatistic(seasonYear);
+
+        if (stats.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No statistics for the season " + seasonYear);
+        }
+        if (hasToBeClassified) {
+            stats.sort(Comparator
+                    .comparingInt(ClubStatistics::getRankingPoints).reversed()
+                    .thenComparingInt(ClubStatistics::getDifferenceGoals).reversed()
+                    .thenComparingInt(ClubStatistics::getCleanSheetNumber).reversed());
+        } else {
+            stats.sort(Comparator.comparing(ClubStatistics::getName));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(stats);
     }
 }

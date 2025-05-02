@@ -5,11 +5,14 @@ import org.example.fifa.model.Player;
 import org.example.fifa.model.PlayerStatistics;
 import org.example.fifa.model.enums.DurationUnit;
 import org.example.fifa.model.enums.Position;
+import org.example.fifa.model.exception.NotFoundException;
 import org.example.fifa.repository.mapper.PlayerMapper;
+import org.example.fifa.rest.dto.ClubDto;
 import org.example.fifa.rest.dto.PlayerDto;
 import org.example.fifa.rest.dto.PlayerStatisticDto;
 import org.example.fifa.rest.dto.PlayerWithClubDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -126,26 +129,6 @@ public class PlayerRepository {
         }
     }
 
-    public List<Player> findByClubId(String clubId) {
-        List<Player> players = new ArrayList<>();
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "SELECT * FROM player WHERE club_id = ?")) {
-
-            statement.setString(1, clubId);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    players.add(playerMapper.mapRow(resultSet));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Erreur lors de la recherche des joueurs du club", e);
-        }
-
-        return players;
-    }
-
 
     public Player save(Player player) {
         Player existingPlayer = findById(player.getId());
@@ -172,6 +155,7 @@ public class PlayerRepository {
                     statement.setInt(3, player.getAge());
                     statement.setString(4, player.getPosition().toString());
                     statement.setString(5, player.getNationality());
+
                     statement.setString(6, player.getId());
 
                     statement.executeUpdate();
@@ -183,33 +167,59 @@ public class PlayerRepository {
         }
     }
 
-    public List<Player> setClubID(String id, List<Player> players) {
-        List<Player> playerList = new ArrayList<>();
+    public PlayerStatisticDto getStatisticOfSpecificPlayer(String id, LocalDate seasonYear){
+        return null;
+    }
 
-        try (Connection connection = dataSource.getConnection()) {
-            try (PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE player SET club_id = ? WHERE id = ? returning id, name, number, age, position, nationality, club_id")) {
-                players.forEach(player -> {
-                    try {
-                        statement.setString(1, id);
-                        statement.setString(2, player.getId());
-                        statement.executeUpdate();
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                try (ResultSet resultSet = statement.executeQuery()){
-                    while (resultSet.next()){
-                        playerList.add(playerMapper.mapPlayer(resultSet));
-                    }
+
+    public List<Player> findByClubId(String clubId) {
+        List<Player> players = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT * FROM player WHERE club_id = ?")) {
+
+            statement.setString(1, clubId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    players.add(playerMapper.mapRow(resultSet));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Erreur lors de la recherche des joueurs du club", e);
         }
-        return playerList;
+        return players;
     }
 
+
+
+    public List<Player> setClubID(String id, List<Player> players) throws SQLException {
+        List<Player> playerList = new ArrayList<>();
+
+        try (Connection connection = dataSource.getConnection()) {
+            for (Player player : players) {
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE player SET club_id = ? WHERE id = ? " +
+                                "RETURNING id, name, number, age, position, nationality, club_id")) {
+
+                    statement.setString(1, id);
+                    statement.setString(2, player.getId());
+
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (resultSet.next()) {
+                            playerList.add(playerMapper.mapPlayer(resultSet));
+                        } else {
+                            throw new RuntimeException("Erreur lors de la mise à jour du joueur " + player.getId());
+                        }
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            System.out.println("TEST2 setClubID");
+            return playerList;
+        }
+    }
 
     public PlayerDto findByIdWithClub(String id) {
         try (Connection connection = dataSource.getConnection();
@@ -217,9 +227,9 @@ public class PlayerRepository {
                      "SELECT * FROM player WHERE id = ?")) {
 
             statement.setString(1, id);
-
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
+                    System.out.println("TEST3 findByIdWithClub");
                     return mapDto(resultSet);
                 }
                 return null;
@@ -229,43 +239,81 @@ public class PlayerRepository {
         }
     }
 
-
-    public List<Player> changePlayersByClubId(String clubId, List<Player> newPlayers) throws SQLException {
-        List<PlayerDto> sameOfNewPlayer = new ArrayList<>();
-
-        // maka an le actuel anatin le club//
-        List<Player> actualPlayers = findByClubId(clubId);
-
-        // manala an le player tao am le club //
-        List<Player> setPlayers = setClubID(null, actualPlayers);
-
-        // maka ilay player izay mitovy id am le ho ampidirina, manao fampitahana //
-        newPlayers.forEach(player -> {
-            sameOfNewPlayer.add(findByIdWithClub(player.getId()));
-        });
-
-        sameOfNewPlayer.forEach(playerDto -> {
-            if (playerDto.getClub().getId().equals(clubId) || playerDto.getClub().getId().equals(null)){
-
-            }
-        });
-        return null;
-    }
-
-    public List<Player> addNewOrExistingPlayersInCLub(String id, List<Player> newPlayers){
+    public List<Player> addNewOrExistingPlayersInCLub(String id, List<Player> players) {
         List<Player> playerList = new ArrayList<>();
-        newPlayers.forEach(player -> {
 
-        });
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     ""
-             )) {
+        try (Connection connection = dataSource.getConnection()) {
+            for (Player player : players) {
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "insert into player (id, name, number, age, position, nationality, club_id) values (?, ?, ?, ?, ?::player_position, ?, ?) " +
+                                "on conflict (id) do update set " +
+                                "name = excluded.name, " +
+                                "number = excluded.number, " +
+                                "age = excluded.age, " +
+                                "position = excluded.position, " +
+                                "nationality = excluded.nationality, " +
+                                "club_id = excluded.club_id " +
+                                "returning id, name, number, age, position, nationality, club_id")) {
+
+                    statement.setString(1, player.getId());
+                    statement.setString(2, player.getName());
+                    statement.setInt(3, player.getNumber());
+                    statement.setInt(4, player.getAge());
+                    statement.setString(5, player.getPosition().toString());
+                    statement.setString(6, player.getNationality());
+                    statement.setString(7, id);
+
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (resultSet.next()) {
+                            playerList.add(playerMapper.mapPlayer(resultSet));
+                        }
+                    }
+                }
+            }
+            System.out.println("TEST4 addNewOrExistingPlayersInCLub");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return null;
+
+        return playerList;
     }
+
+
+
+    public List<Player> changePlayersByClubId(String clubId, List<Player> newPlayers) throws SQLException {
+        List<Player> finalList = new ArrayList<>();
+
+        // 1. Valider tous les joueurs à ajouter
+        for (Player player : newPlayers) {
+            PlayerDto playerDto = findByIdWithClub(player.getId());
+
+            if (playerDto == null) {
+                finalList.add(player); // nouveau joueur
+            } else if (playerDto.getClub() == null) {
+                // joueur existant, pas encore attaché
+                finalList.add(new Player(
+                        playerDto.getId(),
+                        playerDto.getName(),
+                        playerDto.getNumber(),
+                        playerDto.getAge(),
+                        playerDto.getPosition(),
+                        playerDto.getNationality()
+                ));
+            } else {
+                // le joueur est déjà dans un autre club
+                throw new NotFoundException(HttpStatus.BAD_REQUEST,
+                        "Player " + playerDto.getName() + " is already attached to another club");
+            }
+        }
+
+        // 2. Supprimer les anciens joueurs du club uniquement si tout est validé
+        List<Player> actualPlayers = findByClubId(clubId);
+        setClubID(null, actualPlayers);
+
+        // 3. Ajouter les nouveaux joueurs
+        return addNewOrExistingPlayersInCLub(clubId, finalList);
+    }
+
 
     public PlayerStatistics findStatistics(String playerId, String seasonId) {
         try (Connection connection = dataSource.getConnection();
@@ -291,12 +339,14 @@ public class PlayerRepository {
             throw new RuntimeException("Error finding player statistics", e);
         }
         return null;
+
     }
+
 
     public PlayerDto mapDto(ResultSet resultSet) throws SQLException {
         String id = resultSet.getString("id");
         String clubId = resultSet.getString("club_id");
-        Club club = clubRepository.findById(clubId);
+        ClubDto club = clubId != null ? new ClubDto(clubRepository.findById(clubId)) : null;
         Position position = Position.valueOf(resultSet.getString("position"));
         String nationality = resultSet.getString("nationality");
         int age = resultSet.getInt("age");
@@ -304,5 +354,6 @@ public class PlayerRepository {
         int number = resultSet.getInt("number");
         return new PlayerDto(id, club, position, nationality, age, name, number);
     }
+
 }
 

@@ -52,4 +52,5 @@ public class PlayerController {
             @PathVariable Integer seasonYear) {
         return playerService.findPlayerStatistics(id, seasonYear);
     }
+
 }

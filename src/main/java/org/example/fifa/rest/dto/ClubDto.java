@@ -23,6 +23,15 @@ public class ClubDto {
         this.coach = club.getCoach();
     }
 
+    public ClubDto(String id, String name, String acronym, int yearCreation, String stadium, Coach coach) {
+        this.id = id;
+        this.name = name;
+        this.acronym = acronym;
+        this.yearCreation = yearCreation;
+        this.stadium = stadium;
+        this.coach = coach;
+    }
+
     public ClubDto(){};
 
     public String getId() {

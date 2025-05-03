@@ -13,6 +13,11 @@ public class Coach {
         this.nationality = nationality;
     }
 
+    public Coach(String name, String nationality) {
+        this.name = name;
+        this.nationality = nationality;
+    }
+
     public Coach(){};
 
     public String getId() {

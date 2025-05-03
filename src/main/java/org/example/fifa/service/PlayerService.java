@@ -1,8 +1,13 @@
-package org.example.fifa.service;
+/*package org.example.fifa.service;
 
 import org.example.fifa.model.ClubPlayer;
 import org.example.fifa.model.Player;
+import org.example.fifa.model.PlayerStatistics;
+import org.example.fifa.model.Season;
 import org.example.fifa.repository.PlayerRepository;
+import org.example.fifa.repository.SeasonRepository;
+import org.example.fifa.rest.dto.PlayerDto;
+import org.example.fifa.rest.dto.PlayerWithClubDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -16,13 +21,15 @@ import java.util.stream.Collectors;
 @Component
 public class PlayerService  {
     private final PlayerRepository playerRepository;
+    private final SeasonRepository seasonRepository;
 
     @Autowired
-    public PlayerService(PlayerRepository playerRepository) {
+    public PlayerService(PlayerRepository playerRepository, SeasonRepository seasonRepository) {
         this.playerRepository = playerRepository;
+        this.seasonRepository = seasonRepository;
     }
 
-    public List<ClubPlayer> findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
+    /*public List<ClubPlayer> findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
         List<Player> players = playerRepository.findAll(name, ageMinimum, ageMaximum, clubName);
         return players.stream()
                 .map(player -> {
@@ -37,6 +44,11 @@ public class PlayerService  {
                     return clubPlayer;
                 })
                 .collect(Collectors.toList());
+    }*/
+
+
+    /*public List<PlayerWithClubDto> findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
+        return playerRepository.findAll(name, ageMinimum, ageMaximum, clubName);
     }
 
     public Player findById(String id) {
@@ -48,10 +60,136 @@ public class PlayerService  {
     }
 
     public Player save(Player player) {
+        validatePlayer(player);
         return playerRepository.save(player);
     }
 
-    public void deleteById(String id) {
-        playerRepository.deleteById(id);
+    private void validatePlayer(Player player) {
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+        if (player.getName() == null || player.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Player name is required");
+        }
+        if (player.getPosition() == null) {
+            throw new IllegalArgumentException("Player position is required");
+        }
+        if (player.getNumber() <= 0) {
+            throw new IllegalArgumentException("Player number must be positive");
+        }
+        if (player.getAge() <= 0) {
+            throw new IllegalArgumentException("Player age must be positive");
+        }
     }
+
+    public PlayerStatistics findPlayerStatistics(String playerId, Integer seasonYear) {
+        Season season = seasonRepository.findByYear(seasonYear);
+        if (season == null) {
+            return null;
+        }
+        return playerRepository.findStatistics(playerId, season.getId());
+    }
+}
+*/
+
+package org.example.fifa.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.fifa.model.*;
+import org.example.fifa.repository.PlayerRepository;
+import org.example.fifa.repository.SeasonRepository;
+import org.example.fifa.rest.dto.PlayerDto;
+import org.example.fifa.rest.dto.PlayerStatisticDto;
+import org.example.fifa.rest.dto.PlayerWithClubDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@Component
+public class PlayerService  {
+    private final PlayerRepository playerRepository;
+    private final SeasonRepository seasonRepository;
+
+    @Autowired
+    public PlayerService(PlayerRepository playerRepository, SeasonRepository seasonRepository) {
+        this.playerRepository = playerRepository;
+        this.seasonRepository = seasonRepository;
+    }
+
+    public String findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
+        return playerRepository.findPlayers(name, ageMinimum, ageMaximum, clubName);
+    }
+
+
+
+    public ResponseEntity<Player> findById(String id) {
+        Player player = playerRepository.findById(id);
+        if (player == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(player);
+    }
+
+
+    public List<Player> findByClubId(String clubId) {
+        return playerRepository.findByClubId(clubId);
+    }
+
+    public ResponseEntity<List<Player>> saveAll(List<Player> players) {
+        List<Player> savedPlayers = players.stream()
+                .map(this::save)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(savedPlayers);
+    }
+
+    public Player save(Player player) {
+        validatePlayer(player);
+        return playerRepository.save(player);
+    }
+
+
+    private void validatePlayer(Player player) {
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+        if (player.getName() == null || player.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Player name is required");
+        }
+        if (player.getPosition() == null) {
+            throw new IllegalArgumentException("Player position is required");
+        }
+        if (player.getNumber() <= 0) {
+            throw new IllegalArgumentException("Player number must be positive");
+        }
+        if (player.getAge() <= 0) {
+            throw new IllegalArgumentException("Player age must be positive");
+        }
+    }
+
+    public ResponseEntity<PlayerStatisticDto> findPlayerStatistics(String playerId, Integer seasonYear) {
+        Season season = seasonRepository.findByYear(seasonYear);
+        if (season == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        PlayerStatistics stats = playerRepository.findStatistics(playerId, season.getId());
+        if (stats == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        PlayingTime playingTime = new PlayingTime(
+                (int) stats.getPlayingTimeValue(),
+                stats.getPlayingTimeUnit()
+        );
+
+        return ResponseEntity.ok(new PlayerStatisticDto(stats.getScoredGoals(), playingTime));
+    }
+
 }

@@ -2,6 +2,10 @@ package org.example.fifa.rest.controller;
 
 import org.example.fifa.model.ClubPlayer;
 import org.example.fifa.model.Player;
+import org.example.fifa.model.PlayerStatistics;
+import org.example.fifa.rest.dto.PlayerDto;
+import org.example.fifa.rest.dto.PlayerStatisticDto;
+import org.example.fifa.rest.dto.PlayerWithClubDto;
 import org.example.fifa.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,43 +26,30 @@ public class PlayerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClubPlayer>> getAll(
+    public ResponseEntity<String> getAllPlayers(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer ageMinimum,
             @RequestParam(required = false) Integer ageMaximum,
             @RequestParam(required = false) String clubName) {
-        List<ClubPlayer> players = playerService.findPlayers(name, ageMinimum, ageMaximum, clubName);
-        return ResponseEntity.ok(players);
-    }
-
-    @PutMapping
-    public ResponseEntity<List<Player>> updatePlayers(@RequestBody List<Player> players) {
-        List<Player> updatedPlayers = players.stream()
-                .map(playerService::save)
-                .collect(java.util.stream.Collectors.toList());
-        return ResponseEntity.ok(updatedPlayers);
-    }
-
-    @GetMapping("/{id}/statistics/{seasonYear}")
-    public ResponseEntity<Object> getStatisticOfPlayer(
-            @PathVariable String id,
-            @PathVariable LocalDate seasonYear) {
-        // TO DO
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(playerService.findPlayers(name, ageMinimum, ageMaximum, clubName));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayerById(@PathVariable String id) {
-        Player player = playerService.findById(id);
-        if (player == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(player);
+        return playerService.findById(id);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePlayer(@PathVariable String id) {
-        playerService.deleteById(id);
-        return ResponseEntity.noContent().build();
+
+    @PutMapping
+    public ResponseEntity<List<Player>> createOrUpdatePlayers(@RequestBody List<Player> players) {
+        return playerService.saveAll(players);
+    }
+
+
+    @GetMapping("/{id}/statistics/{seasonYear}")
+    public ResponseEntity<PlayerStatisticDto> getStatisticsOfPlayerById(
+            @PathVariable String id,
+            @PathVariable Integer seasonYear) {
+        return playerService.findPlayerStatistics(id, seasonYear);
     }
 }

@@ -24,8 +24,11 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             "/clubs/*/coach",
             "/clubs/**",
             "/players",
+            "/players/**",
             "/swagger-ui",
-            "/v3/api-docs"
+            "/v3/api-docs",
+            "/seasons",
+            "/seasons/**"
     );
 
     @Override

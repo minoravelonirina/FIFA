@@ -1,18 +1,13 @@
 package org.example.fifa.rest.controller;
 
-import org.example.fifa.model.ClubPlayer;
 import org.example.fifa.model.Player;
-import org.example.fifa.model.PlayerStatistics;
-import org.example.fifa.rest.dto.PlayerDto;
 import org.example.fifa.rest.dto.PlayerStatisticDto;
-import org.example.fifa.rest.dto.PlayerWithClubDto;
 import org.example.fifa.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+
 import java.util.List;
 
 @RestController
@@ -52,5 +47,4 @@ public class PlayerController {
             @PathVariable Integer seasonYear) {
         return playerService.findPlayerStatistics(id, seasonYear);
     }
-
 }

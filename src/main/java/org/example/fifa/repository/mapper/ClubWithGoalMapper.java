@@ -35,3 +35,4 @@ public class ClubWithGoalMapper implements Function<ResultSet, ClubWithGoalsDto>
         }
     }
 }
+

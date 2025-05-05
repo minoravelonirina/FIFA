@@ -1,5 +1,7 @@
 package org.example.fifa.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.fifa.model.*;
 import org.example.fifa.repository.PlayerRepository;
 import org.example.fifa.repository.SeasonRepository;

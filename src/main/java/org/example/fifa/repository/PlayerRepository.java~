@@ -6,7 +6,6 @@ import org.example.fifa.model.PlayerStatistics;
 import org.example.fifa.model.enums.DurationUnit;
 import org.example.fifa.model.enums.Position;
 import org.example.fifa.repository.mapper.PlayerMapper;
-import org.example.fifa.rest.dto.ClubDto;
 import org.example.fifa.rest.dto.PlayerDto;
 import org.example.fifa.rest.dto.PlayerStatisticDto;
 import org.example.fifa.rest.dto.PlayerWithClubDto;
@@ -297,7 +296,7 @@ public class PlayerRepository {
     public PlayerDto mapDto(ResultSet resultSet) throws SQLException {
         String id = resultSet.getString("id");
         String clubId = resultSet.getString("club_id");
-        ClubDto club = clubId != null ? new ClubDto(clubRepository.findById(clubId)) : null;
+        Club club = clubRepository.findById(clubId);
         Position position = Position.valueOf(resultSet.getString("position"));
         String nationality = resultSet.getString("nationality");
         int age = resultSet.getInt("age");

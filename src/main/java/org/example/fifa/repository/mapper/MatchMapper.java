@@ -38,3 +38,4 @@ public class MatchMapper implements Function<ResultSet, Match> {
         }
     }
 }
+

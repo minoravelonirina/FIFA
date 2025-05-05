@@ -84,7 +84,7 @@ public class MatchRepository implements CrudDAO<Match>{
     }
 
 
-        public List<MatchDto> findAll(LocalDate seasonYear, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals) throws SQLException, SQLException {
+    public List<MatchDto> findAll(LocalDate seasonYear, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals) throws SQLException, SQLException {
         List<MatchDto> matches = new ArrayList<>();
 
         String sql = """
@@ -135,9 +135,9 @@ public class MatchRepository implements CrudDAO<Match>{
         List<MatchDto> listOfMatch = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(
-                "update \"match\" set status = ?::status where id = ? returning id, match_datetime, status, stadium, club_playing_home, club_playing_away"
-        )) {
+             PreparedStatement statement = connection.prepareStatement(
+                     "update \"match\" set status = ?::status where id = ? returning id, match_datetime, status, stadium, club_playing_home, club_playing_away"
+             )) {
             statement.setString(1, status.name());
             statement.setString(2, id);
             statement.addBatch();

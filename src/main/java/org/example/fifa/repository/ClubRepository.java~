@@ -3,7 +3,10 @@ package org.example.fifa.repository;
 import org.example.fifa.model.Club;
 import org.example.fifa.repository.mapper.ClubMapper;
 import org.example.fifa.rest.dto.ClubStatistics;
+import org.example.fifa.rest.dto.ClubWithGoalsDto;
+import org.example.fifa.rest.dto.ScorerDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -22,6 +25,9 @@ public class ClubRepository implements CrudDAO<Club>{
     @Autowired private DataSource dataSource;
     @Autowired private ClubMapper clubMapper;
     @Autowired private CoachRepository coachRepository;
+    @Autowired
+    @Lazy
+    private PlayerRepository playerRepository;
 
     @Override
     public List<Club> findAll() throws SQLException {
@@ -54,6 +60,24 @@ public class ClubRepository implements CrudDAO<Club>{
             try (ResultSet resultSet = statement.executeQuery()){
                 if (resultSet.next()){
                     return clubMapper.apply(resultSet);
+                }
+                return null;
+            }
+            catch (SQLException e) {
+                throw new RuntimeException("Erreur lors de la recuperation des clubs", e);
+            }
+        }
+    }
+
+    public ClubWithGoalsDto findByIdClub(String idClub) throws SQLException {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "select * from club where id = ?"
+             )){
+            statement.setString(1, idClub);
+            try (ResultSet resultSet = statement.executeQuery()){
+                if (resultSet.next()){
+                    return clubWithGoalMapper(resultSet);
                 }
                 return null;
             }
@@ -248,6 +272,23 @@ public class ClubRepository implements CrudDAO<Club>{
             stats.setDifferenceGoals(differenceGoals);
             stats.setCleanSheetNumber(resultSet.getInt("clean_sheet_number"));
             return stats;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ClubWithGoalsDto clubWithGoalMapper(ResultSet resultSet) {
+        try {
+
+            ClubWithGoalsDto clubWithGoalsDto = new ClubWithGoalsDto();
+            String idClub = resultSet.getString("id");
+            clubWithGoalsDto.setId(idClub);
+            clubWithGoalsDto.setName(resultSet.getString("name"));
+            clubWithGoalsDto.setAcronym(resultSet.getString("acronym"));
+            List<ScorerDto> scorerList = playerRepository.getScorer(idClub);
+            clubWithGoalsDto.setScorers(scorerList);
+
+            return clubWithGoalsDto;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

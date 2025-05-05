@@ -2,11 +2,11 @@ package org.example.fifa.repository;
 
 import org.example.fifa.model.Club;
 import org.example.fifa.repository.mapper.ClubMapper;
-import org.example.fifa.repository.mapper.ClubWithGoalMapper;
-import org.example.fifa.rest.dto.ClubDto;
 import org.example.fifa.rest.dto.ClubStatistics;
 import org.example.fifa.rest.dto.ClubWithGoalsDto;
+import org.example.fifa.rest.dto.ScorerDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +25,9 @@ public class ClubRepository implements CrudDAO<Club>{
     @Autowired private DataSource dataSource;
     @Autowired private ClubMapper clubMapper;
     @Autowired private CoachRepository coachRepository;
-    @Autowired private ClubWithGoalMapper clubWithGoalMapper;
+    @Autowired
+    @Lazy
+    private PlayerRepository playerRepository;
 
     @Override
     public List<Club> findAll() throws SQLException {
@@ -75,7 +77,7 @@ public class ClubRepository implements CrudDAO<Club>{
             statement.setString(1, idClub);
             try (ResultSet resultSet = statement.executeQuery()){
                 if (resultSet.next()){
-                    return clubWithGoalMapper.apply(resultSet);
+                    return clubWithGoalMapper(resultSet);
                 }
                 return null;
             }
@@ -275,4 +277,20 @@ public class ClubRepository implements CrudDAO<Club>{
         }
     }
 
+    private ClubWithGoalsDto clubWithGoalMapper(ResultSet resultSet) {
+        try {
+
+            ClubWithGoalsDto clubWithGoalsDto = new ClubWithGoalsDto();
+            String idClub = resultSet.getString("id");
+            clubWithGoalsDto.setId(idClub);
+            clubWithGoalsDto.setName(resultSet.getString("name"));
+            clubWithGoalsDto.setAcronym(resultSet.getString("acronym"));
+            List<ScorerDto> scorerList = playerRepository.getScorer(idClub);
+            clubWithGoalsDto.setScorers(scorerList);
+
+            return clubWithGoalsDto;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -9,6 +9,7 @@ import org.example.fifa.rest.dto.PlayerDto;
 import org.example.fifa.rest.dto.PlayerStatisticDto;
 import org.example.fifa.rest.dto.PlayerWithClubDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -29,9 +30,20 @@ public class PlayerService  {
         this.seasonRepository = seasonRepository;
     }
 
-    public String findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
-        return playerRepository.findPlayers(name, ageMinimum, ageMaximum, clubName);
+    public ResponseEntity<?> findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
+        try {
+            List<PlayerDto> players = playerRepository.findPlayers(name, ageMinimum, ageMaximum, clubName);
+
+            if (players.isEmpty()) {
+                return ResponseEntity.noContent().build(); // 204 No Content
+            }
+            return ResponseEntity.ok(players); // 200 OK
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de la recherche des joueurs : " + e.getMessage());
+        }
     }
+
 
 
 

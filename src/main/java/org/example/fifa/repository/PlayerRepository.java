@@ -32,8 +32,84 @@ public class PlayerRepository {
         this.playerWithClubRepository = playerWithClubRepository;
     }
 
-    public String findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
-        StringBuilder json = new StringBuilder("[");
+//    public String findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
+//        StringBuilder json = new StringBuilder("[");
+//        StringBuilder sql = new StringBuilder(
+//                "SELECT p.id, p.name, p.number, p.position, p.nationality, p.age, " +
+//                        "c.id AS club_id, c.name AS club_name, c.acronym AS club_acronym, " +
+//                        "c.year_creation AS club_year_creation, c.stadium AS club_stadium, " +
+//                        "ch.name AS coach_name, ch.nationality AS coach_nationality " +
+//                        "FROM player p " +
+//                        "LEFT JOIN club c ON p.club_id = c.id " +
+//                        "LEFT JOIN coach ch ON c.coach_id = ch.id " +
+//                        "WHERE 1=1"
+//        );
+//
+//        List<Object> params = new ArrayList<>();
+//        if (name != null && !name.isEmpty()) {
+//            sql.append(" AND LOWER(p.name) LIKE LOWER(?)");
+//            params.add("%" + name + "%");
+//        }
+//        if (ageMinimum != null) {
+//            sql.append(" AND p.age >= ?");
+//            params.add(ageMinimum);
+//        }
+//        if (ageMaximum != null) {
+//            sql.append(" AND p.age <= ?");
+//            params.add(ageMaximum);
+//        }
+//        if (clubName != null && !clubName.isEmpty()) {
+//            sql.append(" AND LOWER(c.name) LIKE LOWER(?)");
+//            params.add("%" + clubName + "%");
+//        }
+//
+//        try (Connection conn = dataSource.getConnection();
+//             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+//
+//            for (int i = 0; i < params.size(); i++) {
+//                stmt.setObject(i + 1, params.get(i));
+//            }
+//
+//            try (ResultSet rs = stmt.executeQuery()) {
+//                boolean first = true;
+//                while (rs.next()) {
+//                    if (!first) json.append(",");
+//                    first = false;
+//
+//                    json.append("{")
+//                            .append("\"id\":\"").append(rs.getString("id")).append("\",")
+//                            .append("\"name\":\"").append(rs.getString("name")).append("\",")
+//                            .append("\"number\":\"").append(rs.getInt("number")).append(",")
+//                            .append("\"position\":\"").append(rs.getString("position")).append("\",")
+//                            .append("\"nationality\":\"").append(rs.getString("nationality")).append("\",")
+//                            .append("\"age\":").append(rs.getInt("age")).append(",")
+//                            .append("\"club\":{")
+//                            .append("\"id\":\"").append(rs.getString("club_id")).append("\",")
+//                            .append("\"name\":\"").append(rs.getString("club_name")).append("\",")
+//                            .append("\"acronym\":\"").append(rs.getString("club_acronym")).append("\",")
+//                            .append("\"yearCreation\":").append(rs.getInt("club_year_creation")).append(",")
+//                            .append("\"stadium\":\"").append(rs.getString("club_stadium")).append("\",")
+//                            .append("\"coach\":{")
+//                            .append("\"name\":\"").append(rs.getString("coach_name")).append("\",")
+//                            .append("\"nationality\":\"").append(rs.getString("coach_nationality")).append("\"")
+//                            .append("}")
+//                            .append("}")
+//                            .append("}");
+//                }
+//            }
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Erreur lors de la récupération des joueurs", e);
+//        }
+//
+//        json.append("]");
+//        return json.toString();
+//    }
+
+
+    public List<PlayerDto> findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
+//        StringBuilder json = new StringBuilder("[");
+        List<PlayerDto> playerDtoList = new ArrayList<>();
         StringBuilder sql = new StringBuilder(
                 "SELECT p.id, p.name, p.number, p.position, p.nationality, p.age, " +
                         "c.id AS club_id, c.name AS club_name, c.acronym AS club_acronym, " +
@@ -71,40 +147,17 @@ public class PlayerRepository {
             }
 
             try (ResultSet rs = stmt.executeQuery()) {
-                boolean first = true;
                 while (rs.next()) {
-                    if (!first) json.append(",");
-                    first = false;
-
-                    json.append("{")
-                            .append("\"id\":\"").append(rs.getString("id")).append("\",")
-                            .append("\"name\":\"").append(rs.getString("name")).append("\",")
-                            .append("\"number\":\"").append(rs.getInt("number")).append(",")
-                            .append("\"position\":\"").append(rs.getString("position")).append("\",")
-                            .append("\"nationality\":\"").append(rs.getString("nationality")).append("\",")
-                            .append("\"age\":").append(rs.getInt("age")).append(",")
-                            .append("\"club\":{")
-                            .append("\"id\":\"").append(rs.getString("club_id")).append("\",")
-                            .append("\"name\":\"").append(rs.getString("club_name")).append("\",")
-                            .append("\"acronym\":\"").append(rs.getString("club_acronym")).append("\",")
-                            .append("\"yearCreation\":").append(rs.getInt("club_year_creation")).append(",")
-                            .append("\"stadium\":\"").append(rs.getString("club_stadium")).append("\",")
-                            .append("\"coach\":{")
-                            .append("\"name\":\"").append(rs.getString("coach_name")).append("\",")
-                            .append("\"nationality\":\"").append(rs.getString("coach_nationality")).append("\"")
-                            .append("}")
-                            .append("}")
-                            .append("}");
+                   playerDtoList.add(playerWithClubRepository.mapDto(rs));
                 }
+                return playerDtoList;
             }
 
         } catch (SQLException e) {
             throw new RuntimeException("Erreur lors de la récupération des joueurs", e);
         }
-
-        json.append("]");
-        return json.toString();
     }
+
 
     public Player findById(String id) {
         try (Connection connection = dataSource.getConnection();
@@ -202,7 +255,6 @@ public class PlayerRepository {
                     }
                 }
             }
-            System.out.println("TEST2 setClubID");
             return playerList;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -275,7 +327,6 @@ public class PlayerRepository {
                     }
                 }
             }
-            System.out.println("TEST4 addNewOrExistingPlayersInCLub");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

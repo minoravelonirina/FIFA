@@ -1,5 +1,7 @@
 package org.example.fifa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Objects;
 
 public class Coach {
@@ -20,6 +22,7 @@ public class Coach {
 
     public Coach(){};
 
+    @JsonIgnore
     public String getId() {
         return id;
     }

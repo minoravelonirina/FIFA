@@ -77,46 +77,130 @@ public class MatchRepository implements CrudDAO<Match>{
                 statement.setInt(8, seasonYear.getYear());
                 statement.addBatch();
             }
-            return  null;
+            try (ResultSet resultSet = statement.executeQuery()){
+                while(resultSet.next()){
+                    matchDtos.add(mapMatch(resultSet));
+                }
+                return matchDtos;
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
 
-    public List<MatchDto> findAll(LocalDate seasonYear, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals) throws SQLException, SQLException {
-        List<MatchDto> matches = new ArrayList<>();
+//    public List<MatchDto> findAll(LocalDate seasonYear, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals) throws SQLException, SQLException {
+//        List<MatchDto> matches = new ArrayList<>();
+//
+//        String sql = """
+//            SELECT m.*
+//            FROM match m
+//            JOIN season s ON m.season_id = s.id
+//            JOIN club ch ON m.club_playing_home = ch.id
+//            JOIN club ca ON m.club_playing_away = ca.id
+//            WHERE s.year = ?
+//              AND (? IS NULL OR m.status = ?)
+//              AND (? IS NULL OR ch.name ILIKE ? OR ca.name ILIKE ?)
+//              AND (? IS NULL OR m.match_datetime > ?)
+//              AND (? IS NULL OR m.match_datetime <= ?)
+//        """;
+//
+//        try (Connection conn = dataSource.getConnection();
+//             PreparedStatement stmt = conn.prepareStatement(sql)) {
+//
+//            stmt.setInt(1, seasonYear.getYear());
+//
+//            stmt.setObject(2, matchStatus != null ? matchStatus.name() : null);
+//            stmt.setObject(3, matchStatus != null ? matchStatus.name() : null);
+//
+//            stmt.setString(4, clubPlayingName != null ? "%" + clubPlayingName + "%" : null);
+//            stmt.setString(5, clubPlayingName != null ? "%" + clubPlayingName + "%" : null);
+//            stmt.setString(6, clubPlayingName != null ? "%" + clubPlayingName + "%" : null);
+//
+//            stmt.setObject(7, matchAfter);
+//            stmt.setObject(8, matchAfter);
+//
+//            stmt.setObject(9, matchBeforeOrEquals);
+//            stmt.setObject(10, matchBeforeOrEquals);
+//
+//            ResultSet rs = stmt.executeQuery();
+//
+//            while (rs.next()) {
+//                matches.add(mapMatch(rs));
+//            }
+//            return matches;
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Erreur lors de la récupération des matchs", e);
+//        }
+//    }
 
-        String sql = """
-            SELECT m.*
-            FROM match m
-            JOIN season s ON m.season_id = s.id
-            JOIN club ch ON m.club_playing_home = ch.id
-            JOIN club ca ON m.club_playing_away = ca.id
-            WHERE s.year = ?
-              AND (? IS NULL OR m.status = ?)
-              AND (? IS NULL OR ch.name ILIKE ? OR ca.name ILIKE ?)
-              AND (? IS NULL OR m.match_datetime > ?)
-              AND (? IS NULL OR m.match_datetime <= ?)
-        """;
+
+
+    public List<MatchDto> findAll(LocalDate seasonYear, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals) throws SQLException {
+        List<MatchDto> matches = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+        SELECT m.*
+        FROM match m
+        JOIN season s ON m.season_id = s.id
+        JOIN club ch ON m.club_playing_home = ch.id
+        JOIN club ca ON m.club_playing_away = ca.id
+        WHERE s.year = ?
+    """);
+
+        // Ajouter la condition pour le statut
+        if (matchStatus != null) {
+            sql.append(" AND m.status = ?");
+            params.add(matchStatus.name());
+        } else {
+            // Sinon, gérer la possibilité de null dans la requête
+            sql.append(" AND (? IS NULL OR m.status = ?)");
+            params.add(null);
+            params.add(null);
+        }
+
+        // Ajouter la condition pour le nom du club
+        if (clubPlayingName != null && !clubPlayingName.isEmpty()) {
+            sql.append(" AND ch.name ILIKE ? OR ca.name ILIKE ?)");
+            String likePattern = "%" + clubPlayingName + "%";
+            params.add(likePattern);
+            params.add(likePattern);
+        }
+
+        // Ajouter la condition pour la date après
+        if (matchAfter != null) {
+            sql.append(" AND m.match_datetime > ?");
+            params.add(java.sql.Date.valueOf(matchAfter)); // Convertir LocalDate en Date
+        }
+
+        // Ajouter la condition pour la date avant ou égale
+        if (matchBeforeOrEquals != null) {
+            sql.append(" AND m.match_datetime <= ?");
+            params.add(java.sql.Date.valueOf(matchBeforeOrEquals)); // Convertir LocalDate en Date
+        }
 
         try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
+            // Remplir le premier paramètre : seasonYear
             stmt.setInt(1, seasonYear.getYear());
 
-            stmt.setObject(2, matchStatus != null ? matchStatus.name() : null);
-            stmt.setObject(3, matchStatus != null ? matchStatus.name() : null);
-
-            stmt.setString(4, clubPlayingName != null ? "%" + clubPlayingName + "%" : null);
-            stmt.setString(5, clubPlayingName != null ? "%" + clubPlayingName + "%" : null);
-            stmt.setString(6, clubPlayingName != null ? "%" + clubPlayingName + "%" : null);
-
-            stmt.setObject(7, matchAfter);
-            stmt.setObject(8, matchAfter);
-
-            stmt.setObject(9, matchBeforeOrEquals);
-            stmt.setObject(10, matchBeforeOrEquals);
+            // Remplir les autres paramètres
+            int index = 2;
+            for (Object param : params) {
+                if (param == null) {
+                    stmt.setNull(index, Types.VARCHAR); // ou un autre type selon le cas
+                } else if (param instanceof String) {
+                    stmt.setString(index, (String) param);
+                } else if (param instanceof LocalDate) {
+                    stmt.setDate(index, java.sql.Date.valueOf((LocalDate) param));
+                } else {
+                    stmt.setObject(index, param);
+                }
+                index++;
+            }
 
             ResultSet rs = stmt.executeQuery();
 

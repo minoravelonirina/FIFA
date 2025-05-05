@@ -21,12 +21,12 @@ public class PlayerController {
     }
 
     @GetMapping
-    public ResponseEntity<String> getAllPlayers(
+    public ResponseEntity<?> getAllPlayers(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer ageMinimum,
             @RequestParam(required = false) Integer ageMaximum,
             @RequestParam(required = false) String clubName) {
-        return ResponseEntity.ok(playerService.findPlayers(name, ageMinimum, ageMaximum, clubName));
+        return playerService.findPlayers(name, ageMinimum, ageMaximum, clubName);
     }
 
     @GetMapping("/{id}")

@@ -33,7 +33,6 @@ public class CoachRepository {
 
             try (ResultSet resultSet = statement.executeQuery()){
                 if (resultSet.next()){
-                    System.out.println(coachMapper.apply(resultSet));
                     return coachMapper.apply(resultSet);
                 }
                 return null;

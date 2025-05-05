@@ -1,9 +1,12 @@
 package org.example.fifa.service;
 
 import org.example.fifa.model.Match;
+import org.example.fifa.model.RequestGoal;
 import org.example.fifa.model.enums.Status;
 import org.example.fifa.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -23,8 +26,7 @@ public class MatchService {
     }
 
     public ResponseEntity<Object> getAll(LocalDate seasonYear, Status matchStatus, String clubPlayingName, LocalDate matchAfter, LocalDate matchBeforeOrEquals) throws SQLException {
-        matchRepository.findAll(seasonYear, matchStatus, clubPlayingName, matchAfter, matchBeforeOrEquals);
-        return null;
+        return ResponseEntity.status(HttpStatus.OK).body(matchRepository.findAll(seasonYear, matchStatus, clubPlayingName, matchAfter, matchBeforeOrEquals));
     }
 
     public ResponseEntity<Object> changeStatus(String id, Status status){
@@ -32,8 +34,7 @@ public class MatchService {
         return null;
     }
 
-    public ResponseEntity<Object> addGoals(String id){
-        matchRepository.saveGoalsInMatch(id);
-        return null;
+    public ResponseEntity<Object> addGoals(String id, List<RequestGoal> requestList){
+        return ResponseEntity.ok(matchRepository.saveGoalsInMatch(id, requestList));
     }
 }

@@ -5,11 +5,11 @@ import org.example.fifa.model.Player;
 import java.util.Objects;
 
 public class ScorerDto {
-    private Player player;
+    private PlayerScorerDto player;
     private int minuteOfGoal;
     private boolean ownGoal;
 
-    public ScorerDto(Player player, int minuteOfGoal, boolean ownGoal) {
+    public ScorerDto(PlayerScorerDto player, int minuteOfGoal, boolean ownGoal) {
         this.player = player;
         this.minuteOfGoal = minuteOfGoal;
         this.ownGoal = ownGoal;
@@ -17,11 +17,11 @@ public class ScorerDto {
 
     public ScorerDto(){};
 
-    public Player getPlayer() {
+    public PlayerScorerDto getPlayer() {
         return player;
     }
 
-    public void setPlayer(Player player) {
+    public void setPlayer(PlayerScorerDto player) {
         this.player = player;
     }
 

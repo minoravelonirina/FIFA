@@ -29,7 +29,9 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             "/swagger-ui",
             "/v3/api-docs",
             "/seasons",
-            "/seasons/**"
+            "/seasons/**",
+            "/matches/**",
+            "/matches"
     );
 
     @Override

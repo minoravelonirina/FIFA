@@ -23,6 +23,8 @@ public class MatchDto {
         this.actualStatus = actualStatus;
     }
 
+    public MatchDto(){};
+
     public String getId() {
         return id;
     }

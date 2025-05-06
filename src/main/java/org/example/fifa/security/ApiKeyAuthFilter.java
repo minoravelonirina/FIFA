@@ -16,23 +16,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
-//    @Value("${api.key}")
     private final String expectedApiKey = System.getenv("api.key");
 
-    private final List<String> publicEndpoints = List.of(
-            "/clubs",
-            "/clubs/*/test",
-            "/clubs/*/coach",
-            "/clubs/**",
-            "/players",
-            "/players/**",
-            "/swagger-ui",
-            "/v3/api-docs",
-            "/seasons",
-            "/seasons/**",
-            "/matches/**",
-            "/matches"
-    );
+//    private final List<String> publicEndpoints = List.of(
+//            "/clubs",
+//            "/clubs/*/test",
+//            "/clubs/*/coach",
+//            "/clubs/**",
+//            "/players",
+//            "/players/**",
+//            "/swagger-ui",
+//            "/v3/api-docs",
+//            "/seasons",
+//            "/seasons/**",
+//            "/matches/**",
+//            "/matches",
+//            "/synchronization",
+//            "/synchronization/**",
+//            "/bestPlayers",
+//            "/bestClubs",
+//            "/championshipRankings",
+//            "/matchMaker",
+//            "/"
+//
+//    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -42,11 +49,11 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 //        System.out.println("Request path: " + path);  // Log du chemin de la requête
 
         // Laisser passer les routes publiques
-        if (isPublic(path)) {
+//        if (isPublic(path)) {
 //            System.out.println("Public route, skipping API key check.");  // Log pour les routes publiques
-            filterChain.doFilter(request, response);
-            return;
-        }
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
 
         // Vérifier l’API key sur les routes protégées
         String apiKey = request.getHeader("X-API-KEY");
@@ -59,8 +66,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isPublic(String path) {
-        return publicEndpoints.stream().anyMatch(path::startsWith);
-    }
+//    private boolean isPublic(String path) {
+//        return publicEndpoints.stream().anyMatch(path::startsWith);
+//    }
 }
 

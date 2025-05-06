@@ -69,7 +69,7 @@ public class ClubRepository implements CrudDAO<Club>{
         }
     }
 
-    public ClubWithGoalsDto findByIdClub(String idClub) throws SQLException {
+    public ClubWithGoalsDto findByIdClub(String idClub, String matchId) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "select * from club where id = ?"
@@ -77,7 +77,7 @@ public class ClubRepository implements CrudDAO<Club>{
             statement.setString(1, idClub);
             try (ResultSet resultSet = statement.executeQuery()){
                 if (resultSet.next()){
-                    return clubWithGoalMapper(resultSet);
+                    return clubWithGoalMapper(resultSet, matchId);
                 }
                 return null;
             }
@@ -86,6 +86,7 @@ public class ClubRepository implements CrudDAO<Club>{
             }
         }
     }
+
 
     @Override
     public Club findByName(String name) {
@@ -277,7 +278,7 @@ public class ClubRepository implements CrudDAO<Club>{
         }
     }
 
-    private ClubWithGoalsDto clubWithGoalMapper(ResultSet resultSet) {
+    private ClubWithGoalsDto clubWithGoalMapper(ResultSet resultSet, String matchId) {
         try {
 
             ClubWithGoalsDto clubWithGoalsDto = new ClubWithGoalsDto();
@@ -285,12 +286,20 @@ public class ClubRepository implements CrudDAO<Club>{
             clubWithGoalsDto.setId(idClub);
             clubWithGoalsDto.setName(resultSet.getString("name"));
             clubWithGoalsDto.setAcronym(resultSet.getString("acronym"));
-            List<ScorerDto> scorerList = playerRepository.getScorer(idClub);
+            List<ScorerDto> scorerList = getScorerOfMach(idClub, matchId);
             clubWithGoalsDto.setScorers(scorerList);
 
             return clubWithGoalsDto;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<ScorerDto> getScorer(String clubId) throws SQLException {
+        return playerRepository.getScorerOfClub(clubId);
+    }
+
+    public List<ScorerDto> getScorerOfMach(String clubId, String matchId) throws SQLException {
+        return playerRepository.getScorerOfMatch(clubId, matchId);
     }
 }

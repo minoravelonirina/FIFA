@@ -19,7 +19,7 @@ public class MatchController {
     @Autowired private MatchService matchService;
 
     @PostMapping("/matchMaker/{seasonYear}")
-    public ResponseEntity<Object> createAllMatches(@PathVariable LocalDate seasonYear, @RequestBody List<Match> matches){
+    public ResponseEntity<Object> createAllMatches(@PathVariable LocalDate seasonYear, @RequestBody List<Match> matches) throws SQLException {
         return matchService.saveMatches(seasonYear, matches);
     }
 

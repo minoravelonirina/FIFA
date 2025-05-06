@@ -1,6 +1,6 @@
 package org.example.fifa.rest.dto;
 
-import org.example.fifa.model.Club;
+
 import org.example.fifa.model.enums.Status;
 
 import java.time.LocalDateTime;

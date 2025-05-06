@@ -67,3 +67,23 @@ public List<Player> getPlayersByClubId(String id){
         Si le match est en statut NOT_STARTED ou FINISHED, l’API doit retourner une erreur 400 BAD_REQUEST.
         Après chaque requête (ajout d’un but), les statistiques du joueur buteur doivent être mises à jour.
         Cela signifie qu’après qu’un but est marqué, la réponse retournée par GET /players/{id}/statistics/{seasonYear} doit refléter cette mise à jour.
+
+
+        // REQUETE SQL POUR CREER UN ID PRESONNALISER //
+        CREATE SEQUENCE goal_id_seq START 1;
+
+        ALTER TABLE goal
+            ALTER COLUMN id SET DATA TYPE TEXT;
+
+        CREATE OR REPLACE FUNCTION generate_goal_id()
+            RETURNS TRIGGER AS $$
+        BEGIN
+            NEW.id := 'goal_' || nextval('goal_id_seq');
+            RETURN NEW;
+        END;
+        $$ LANGUAGE plpgsql;
+
+        CREATE TRIGGER goal_id_trigger
+            BEFORE INSERT ON goal
+            FOR EACH ROW
+        EXECUTE FUNCTION generate_goal_id();

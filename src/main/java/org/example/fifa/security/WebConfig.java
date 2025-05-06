@@ -9,7 +9,10 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("http://localhost:3000"); // Permet les requêtes CORS depuis localhost:3000
+        registry.addMapping("/**")
+                .allowedOrigins("https://9bd3-2605-59c0-5eed-d310-ece9-f561-e7c6-ecd.ngrok-free.app") // ou limiter à l'URL de ngrok si nécessaire
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*");
     }
 }
 

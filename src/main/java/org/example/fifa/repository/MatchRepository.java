@@ -2,9 +2,11 @@ package org.example.fifa.repository;
 
 import org.example.fifa.model.Match;
 import org.example.fifa.model.RequestGoal;
+import org.example.fifa.model.Season;
 import org.example.fifa.model.enums.Status;
 import org.example.fifa.rest.dto.ClubWithGoalsDto;
 import org.example.fifa.rest.dto.MatchDto;
+import org.example.fifa.rest.dto.ScorerDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
@@ -12,9 +14,9 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Repository
 @Component
@@ -22,6 +24,9 @@ public class MatchRepository implements CrudDAO<Match>{
 
     @Autowired private DataSource dataSource;
     @Autowired private ClubRepository clubRepository;
+    @Autowired private SeasonRepository seasonRepository;
+    @Autowired
+    private PlayerRepository playerRepository;
 
     @Override
     public List<Match> findAll() {
@@ -73,7 +78,8 @@ public class MatchRepository implements CrudDAO<Match>{
                 statement.setString(4, match.getStadium());
                 statement.setString(5, match.getClubPlayingHome().getId());
                 statement.setString(6, match.getClubPlayingAway().getId());
-                statement.setInt(7, seasonYear.getYear());
+                Season season = seasonRepository.findByYear(seasonYear.getYear());
+                statement.setString(7, season.getId());
                 statement.setInt(8, seasonYear.getYear());
                 statement.addBatch();
             }
@@ -150,69 +156,73 @@ public class MatchRepository implements CrudDAO<Match>{
         WHERE s.year = ?
     """);
 
-        // Ajouter la condition pour le statut
         if (matchStatus != null) {
             sql.append(" AND m.status = ?");
-            params.add(matchStatus.name());
-        } else {
-            // Sinon, gérer la possibilité de null dans la requête
-            sql.append(" AND (? IS NULL OR m.status = ?)");
-            params.add(null);
-            params.add(null);
+            params.add(matchStatus);
         }
 
-        // Ajouter la condition pour le nom du club
+        // Ajouter condition club name
         if (clubPlayingName != null && !clubPlayingName.isEmpty()) {
-            sql.append(" AND ch.name ILIKE ? OR ca.name ILIKE ?)");
+            sql.append(" AND (ch.name ILIKE ? OR ca.name ILIKE ?)");
             String likePattern = "%" + clubPlayingName + "%";
             params.add(likePattern);
             params.add(likePattern);
         }
 
-        // Ajouter la condition pour la date après
+        // Date après
         if (matchAfter != null) {
             sql.append(" AND m.match_datetime > ?");
-            params.add(java.sql.Date.valueOf(matchAfter)); // Convertir LocalDate en Date
+            params.add(Date.valueOf(matchAfter));
         }
 
-        // Ajouter la condition pour la date avant ou égale
+        // Date avant ou égale
         if (matchBeforeOrEquals != null) {
             sql.append(" AND m.match_datetime <= ?");
-            params.add(java.sql.Date.valueOf(matchBeforeOrEquals)); // Convertir LocalDate en Date
+            params.add(Date.valueOf(matchBeforeOrEquals));
         }
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-            // Remplir le premier paramètre : seasonYear
             stmt.setInt(1, seasonYear.getYear());
 
-            // Remplir les autres paramètres
             int index = 2;
             for (Object param : params) {
+
                 if (param == null) {
-                    stmt.setNull(index, Types.VARCHAR); // ou un autre type selon le cas
-                } else if (param instanceof String) {
+                    stmt.setNull(index, Types.OTHER);
+                }
+
+                else if (param instanceof String) {
                     stmt.setString(index, (String) param);
-                } else if (param instanceof LocalDate) {
-                    stmt.setDate(index, java.sql.Date.valueOf((LocalDate) param));
-                } else {
+                }
+
+                else if (param instanceof LocalDate) {
+                    stmt.setDate(index, Date.valueOf((LocalDate) param));
+                }
+
+                else if (param instanceof Status) {
+                    stmt.setObject(index, ((Status) param).name(), Types.OTHER);
+                }
+
+                else {
                     stmt.setObject(index, param);
                 }
                 index++;
             }
 
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
                 matches.add(mapMatch(rs));
             }
+
             return matches;
 
         } catch (SQLException e) {
             throw new RuntimeException("Erreur lors de la récupération des matchs", e);
         }
     }
+
 
 
     public List<MatchDto> changeStatusOfMatch(String id, Status status){
@@ -259,27 +269,25 @@ public class MatchRepository implements CrudDAO<Match>{
     public List<MatchDto> saveGoalsInMatch(String matchId, List<RequestGoal> requestList) {
         List<MatchDto> matchHaveGoals = new ArrayList<>();
 
-        String insertSql = "INSERT INTO goal (id, match_id, club_id, player_id, minute_of_goal) " +
-                "VALUES (?, ?, ?, ?, ?) returning id, match_id, club_id, player_id, minute_of_goal";
+        String insertSql = "INSERT INTO goal (match_id, club_id, player_id, minute_of_goal) " +
+                "VALUES (?, ?, ?, ?) returning match_id, club_id, player_id, minute_of_goal";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(insertSql)) {
 
             for (RequestGoal goal : requestList) {
-                String goalId = UUID.randomUUID().toString();
-                statement.setString(1, goalId);
-                statement.setString(2, matchId);
-                statement.setString(3, goal.getClubId());
-                statement.setString(4, goal.getScorerIdentifier());
-                statement.setInt(5, goal.getMinuteOfGoal());
+                statement.setString(1, matchId);
+                statement.setString(2, goal.getClubId());
+                statement.setString(3, goal.getScorerIdentifier());
+                statement.setInt(4, goal.getMinuteOfGoal());
 
                 statement.addBatch(); // Accumule les insertions pour exécution en lot
             }
             statement.executeBatch(); // Exécute tous les inserts d'un coup pour optimiser
 
-            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    matchHaveGoals.add(mapMatch(resultSet));
+                    matchHaveGoals.add(mapMatchGoal(resultSet, matchId));
                 }
                 return matchHaveGoals;
             }
@@ -288,19 +296,42 @@ public class MatchRepository implements CrudDAO<Match>{
         }
     }
 
+
     private MatchDto mapMatch(ResultSet rs) throws SQLException {
         MatchDto match = new MatchDto();
         match.setId(rs.getString("id"));
-        match.setMatchDatetime(rs.getTimestamp("match_datetime").toLocalDateTime());
+        LocalDateTime dateTime = rs.getTimestamp("match_datetime") != null
+                ? rs.getTimestamp("match_datetime").toLocalDateTime()
+                : null;
+        match.setMatchDatetime(dateTime);
         match.setActualStatus(Status.valueOf(rs.getString("status")));
         match.setStadium(rs.getString("stadium"));
         String idClubHome = rs.getString("club_playing_home");
         String idClubAway = rs.getString("club_playing_away");
-        ClubWithGoalsDto clubHome = idClubHome != null ? clubRepository.findByIdClub(idClubHome) : null;
-        ClubWithGoalsDto clubAway = idClubAway != null ? clubRepository.findByIdClub(idClubAway) : null;
+        ClubWithGoalsDto clubHome = idClubHome != null ? clubRepository.findByIdClub(idClubHome, match.getId()) : null;
+        ClubWithGoalsDto clubAway = idClubAway != null ? clubRepository.findByIdClub(idClubAway, match.getId()) : null;
         match.setClubPlayingHome(clubHome);
         match.setClubPlayingAway(clubAway);
 
         return match;
     }
+
+    private MatchDto mapMatchGoal(ResultSet rs, String matchId) throws SQLException {
+        MatchDto match = new MatchDto();
+        MatchDto match1 = getById(matchId);
+        match.setId(matchId);
+        match.setMatchDatetime(match1.getMatchDatetime());
+        match.setActualStatus(match1.getActualStatus());
+        match.setStadium(match1.getStadium());
+        ClubWithGoalsDto club = clubRepository.findByIdClub(rs.getString("club_id"), match1.getId());
+        if (match1.getClubPlayingAway().getId().equals(club.getId())){
+            match.setClubPlayingAway(club);
+            match.setClubPlayingHome(match1.getClubPlayingHome());
+        }
+        match.setClubPlayingHome(club);
+        match.setClubPlayingAway(match1.getClubPlayingAway());
+        return match;
+    };
+
+
 }

@@ -1,20 +1,17 @@
 package org.example.fifa.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.example.fifa.model.*;
 import org.example.fifa.repository.PlayerRepository;
 import org.example.fifa.repository.SeasonRepository;
 import org.example.fifa.rest.dto.PlayerDto;
 import org.example.fifa.rest.dto.PlayerStatisticDto;
-import org.example.fifa.rest.dto.PlayerWithClubDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,21 +27,19 @@ public class PlayerService  {
         this.seasonRepository = seasonRepository;
     }
 
-    public ResponseEntity<?> findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
+    public ResponseEntity<Object> findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
         try {
             List<PlayerDto> players = playerRepository.findPlayers(name, ageMinimum, ageMaximum, clubName);
 
             if (players.isEmpty()) {
-                return ResponseEntity.noContent().build(); // 204 No Content
+                return ResponseEntity.noContent().build();
             }
-            return ResponseEntity.ok(players); // 200 OK
+            return ResponseEntity.ok(players);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erreur lors de la recherche des joueurs : " + e.getMessage());
         }
     }
-
-
 
 
     public ResponseEntity<Player> findById(String id) {
@@ -56,16 +51,13 @@ public class PlayerService  {
     }
 
 
-    public List<Player> findByClubId(String clubId) {
-        return playerRepository.findByClubId(clubId);
-    }
-
     public ResponseEntity<List<Player>> saveAll(List<Player> players) {
         List<Player> savedPlayers = players.stream()
                 .map(this::save)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(savedPlayers);
     }
+
 
     public Player save(Player player) {
         validatePlayer(player);
@@ -109,5 +101,7 @@ public class PlayerService  {
 
         return ResponseEntity.ok(new PlayerStatisticDto(stats.getScoredGoals(), playingTime));
     }
+
+
 
 }

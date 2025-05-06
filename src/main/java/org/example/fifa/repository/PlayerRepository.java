@@ -361,14 +361,37 @@ public class PlayerRepository {
     }
 
 
-    public List<ScorerDto> getScorer (String clubId) throws SQLException {
+    public PlayerStatisticDto test(String playerId, String seasonId) {
+        return null;
+    }
+
+
+    public List<ScorerDto> getScorerOfClub (String clubId) throws SQLException {
         List<ScorerDto> list = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "select * from goal where match_id = ?"
+                     "select * from goal where club_id = ?"
              )){
             statement.setString(1, clubId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    list.add(scorerDtoMapper(resultSet));
+                }
+                return list;
+            }
+        }
+    }
+
+    public List<ScorerDto> getScorerOfMatch (String clubId, String matchId) throws SQLException {
+        List<ScorerDto> list = new ArrayList<>();
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "select * from goal where club_id = ? and match_id = ?"
+             )){
+            statement.setString(1, clubId);
+            statement.setString(2, matchId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     list.add(scorerDtoMapper(resultSet));

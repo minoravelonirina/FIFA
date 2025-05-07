@@ -66,27 +66,7 @@ create table goal (
                       own_goal boolean default false
 );
 
-create table club_statistics (
-                                 id varchar primary key,
-                                 club_id varchar references club(id),
-                                 season_id varchar references season(id),
-                                 ranking_points integer default 0,
-                                 scored_goals integer default 0,
-                                 conceded_goals integer default 0,
-                                 difference_goals integer default 0,
-                                 clean_sheet_number integer default 0,
-                                 unique(club_id, season_id)
-);
 
-create table player_statistics (
-                                   id varchar primary key,
-                                   player_id varchar references player(id),
-                                   season_id varchar references season(id),
-                                   scored_goals integer default 0,
-                                   playing_time_value numeric,
-                                   playing_time_unit duration_unit,
-                                   unique(player_id, season_id)
-);
 
 -- 1. Insertion de la saison 2024-2025
 INSERT INTO season (id, year, alias, status)
@@ -123,16 +103,76 @@ INSERT INTO "match" (id, club_playing_home, club_playing_away, stadium, match_da
                                                                                                                ('M5', 'CL-FCB', 'CL-ATM', 'Lluís Companys', NULL, 'NOT_STARTED', 'S2024-2025'),
                                                                                                                ('M6', 'CL-RMA', 'CL-ATM', 'Santiago Bernabeu', NULL, 'NOT_STARTED', 'S2024-2025');
 
--- 6. Insertion des statistiques initiales des clubs
-INSERT INTO club_statistics (id, club_id, season_id, ranking_points, scored_goals, conceded_goals, difference_goals, clean_sheet_number) VALUES
-                                                                                                                                             ('CS1', 'CL-RMA', 'S2024-2025', 0, 0, 0, 0, 0),
-                                                                                                                                             ('CS2', 'CL-FCB', 'S2024-2025', 0, 0, 0, 0, 0),
-                                                                                                                                             ('CS3', 'CL-ATM', 'S2024-2025', 0, 0, 0, 0, 0);
 
--- 7. Insertion des statistiques initiales des joueurs
-INSERT INTO player_statistics (id, player_id, season_id, scored_goals, playing_time_value, playing_time_unit) VALUES
-                                                                                                                  ('PS1', 'P1', 'S2024-2025', 0, 0, 'MINUTE'),
-                                                                                                                  ('PS2', 'P2', 'S2024-2025', 0, 0, 'MINUTE'),
-                                                                                                                  ('PS3', 'P3', 'S2024-2025', 0, 0, 'MINUTE'),
-                                                                                                                  ('PS4', 'P4', 'S2024-2025', 0, 0, 'MINUTE');
+String sql = """
 
+                SELECT\s
+               c.id,
+               c.name,
+               c.acronym,
+               c.year_creation,
+               c.stadium,
+               co.name AS coach_name,
+               co.nationality AS coach_nationality,
+              \s
+               -- Buts marqués par le club pendant la saison
+               COALESCE(SUM(CASE\s
+                   WHEN g.own_goal = false AND g.club_id = c.id THEN 1\s
+                   ELSE 0\s
+               END), 0) AS scored_goals,
+
+               -- Buts encaissés (buts contre ce club)
+               COALESCE(SUM(CASE\s
+                   WHEN g.own_goal = false AND (g.club_id != c.id AND (m.club_playing_home = c.id OR m.club_playing_away = c.id)) THEN 1\s
+                   ELSE 0\s
+               END), 0) AS conceded_goals,
+
+               -- Points : victoire = 3, nul = 1, défaite = 0
+               COALESCE(SUM(CASE
+                   WHEN m.club_playing_home = c.id AND home_goals > away_goals THEN 3
+                   WHEN m.club_playing_away = c.id AND away_goals > home_goals THEN 3
+                   WHEN home_goals = away_goals AND (m.club_playing_home = c.id OR m.club_playing_away = c.id) THEN 1
+                   ELSE 0
+               END), 0) AS ranking_points,
+
+               -- Clean sheets
+               COALESCE(SUM(CASE
+                   WHEN m.club_playing_home = c.id AND away_goals = 0 THEN 1
+                   WHEN m.club_playing_away = c.id AND home_goals = 0 THEN 1
+                   ELSE 0
+               END), 0) AS clean_sheet_number
+
+           FROM club c
+           LEFT JOIN coach co ON co.id = c.coach_id
+           LEFT JOIN match m ON m.club_playing_home = c.id OR m.club_playing_away = c.id
+           LEFT JOIN (
+               SELECT\s
+                   g.match_id,
+                   g.club_id,
+                   g.own_goal,
+                   COUNT(*) FILTER (WHERE g.own_goal = false) AS goals
+               FROM goal g
+               GROUP BY g.match_id, g.club_id, g.own_goal
+           ) g ON g.match_id = m.id
+
+           -- Buts par match et club (pour calculs de score final du match)
+           LEFT JOIN (
+               SELECT\s
+                   m.id AS match_id,
+                   -- Buts marqués par club à domicile
+                   COUNT(CASE WHEN g.own_goal = false AND g.club_id = m.club_playing_home THEN 1 END) AS home_goals,
+                   -- Buts marqués par club à l’extérieur
+                   COUNT(CASE WHEN g.own_goal = false AND g.club_id = m.club_playing_away THEN 1 END) AS away_goals
+               FROM match m
+               LEFT JOIN goal g ON g.match_id = m.id
+               GROUP BY m.id
+           ) match_goals ON match_goals.match_id = m.id
+
+           JOIN season s ON m.season_id = s.id
+           WHERE s.year = ?
+           GROUP BY\s
+               c.id, c.name, c.acronym, c.year_creation, c.stadium,
+               co.name, co.nationality,
+               home_goals, away_goals;
+
+           """;

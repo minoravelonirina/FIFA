@@ -1,7 +1,7 @@
 package org.example.fifa.repository;
 
+import org.example.fifa.model.Club;
 import org.example.fifa.model.enums.Position;
-import org.example.fifa.rest.dto.ClubDto;
 import org.example.fifa.rest.dto.PlayerDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,7 +41,7 @@ public class PlayerWithClubRepository {
     public PlayerDto mapDto(ResultSet resultSet) throws SQLException {
         String id = resultSet.getString("id");
         String clubId = resultSet.getString("club_id");
-        ClubDto club = clubId != null ? new ClubDto(clubRepository.findById(clubId)) : null;
+        Club club = clubId != null ? clubRepository.findById(clubId) : null;
         Position position = Position.valueOf(resultSet.getString("position"));
         String nationality = resultSet.getString("nationality");
         int age = resultSet.getInt("age");

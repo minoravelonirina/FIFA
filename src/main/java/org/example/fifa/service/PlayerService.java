@@ -2,8 +2,11 @@ package org.example.fifa.service;
 
 
 import org.example.fifa.model.*;
+import org.example.fifa.model.enums.Status;
+import org.example.fifa.repository.MatchRepository;
 import org.example.fifa.repository.PlayerRepository;
 import org.example.fifa.repository.SeasonRepository;
+import org.example.fifa.rest.dto.MatchDto;
 import org.example.fifa.rest.dto.PlayerDto;
 import org.example.fifa.rest.dto.PlayerStatisticDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,25 +88,17 @@ public class PlayerService  {
         }
     }
 
-    public ResponseEntity<PlayerStatisticDto> findPlayerStatistics(String playerId, Integer seasonYear) {
-        Season season = seasonRepository.findByYear(seasonYear);
-        if (season == null) {
-            return ResponseEntity.notFound().build();
+
+    public ResponseEntity<Object> findPlayerStatistics(String playerId, LocalDate seasonYear) throws SQLException {
+        Season season = seasonRepository.findByYear(seasonYear.getYear());
+        if (!season.getStatus().equals(Status.FINISHED)) {
+            return ResponseEntity.badRequest().body("The season is not finished");
         }
-
-        PlayerStatistics stats = playerRepository.findStatistics(playerId, season.getId());
-        if (stats == null) {
-            return ResponseEntity.notFound().build();
+        if (season != null) {
+            return ResponseEntity.ok(playerRepository.findStatistics(playerId, season.getId()));
         }
+        return ResponseEntity.notFound().build();
 
-        PlayingTime playingTime = new PlayingTime(
-                (int) stats.getPlayingTimeValue(),
-                stats.getPlayingTimeUnit()
-        );
-
-        return ResponseEntity.ok(new PlayerStatisticDto(stats.getScoredGoals(), playingTime));
     }
-
-
 
 }

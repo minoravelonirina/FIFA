@@ -4,15 +4,21 @@ import org.example.fifa.model.Player;
 import org.example.fifa.rest.dto.PlayerStatisticDto;
 import org.example.fifa.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/players")
 public class PlayerController {
+
+
     private final PlayerService playerService;
 
     @Autowired
@@ -43,9 +49,10 @@ public class PlayerController {
 
 
     @GetMapping("/{id}/statistics/{seasonYear}")
-    public ResponseEntity<PlayerStatisticDto> getStatisticsOfPlayerById(
+    public ResponseEntity<Object> getStatisticsOfPlayerById(
             @PathVariable String id,
-            @PathVariable Integer seasonYear) {
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate seasonYear) throws SQLException {
         return playerService.findPlayerStatistics(id, seasonYear);
     }
+
 }

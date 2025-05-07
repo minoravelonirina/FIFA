@@ -6,6 +6,7 @@ import org.example.fifa.model.PlayerStatistics;
 import org.example.fifa.model.enums.DurationUnit;
 import org.example.fifa.model.exception.NotFoundException;
 import org.example.fifa.repository.mapper.PlayerMapper;
+import org.example.fifa.repository.mapper.PlayerStatisticMapper;
 import org.example.fifa.rest.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,12 +25,14 @@ public class PlayerRepository {
     private final DataSource dataSource;
     private final PlayerMapper playerMapper;
     private final PlayerWithClubRepository playerWithClubRepository;
+    private final PlayerStatisticMapper playerStatisticMapper;
 
     @Autowired
-    public PlayerRepository(DataSource dataSource, PlayerMapper playerMapper, PlayerWithClubRepository playerWithClubRepository) {
+    public PlayerRepository(DataSource dataSource, PlayerMapper playerMapper, PlayerWithClubRepository playerWithClubRepository, PlayerStatisticMapper playerStatisticMapper) {
         this.dataSource = dataSource;
         this.playerMapper = playerMapper;
         this.playerWithClubRepository = playerWithClubRepository;
+        this.playerStatisticMapper = playerStatisticMapper;
     }
 
 //    public String findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
@@ -334,35 +337,30 @@ public class PlayerRepository {
         return playerList;
     }
 
-    public PlayerStatistics findStatistics(String playerId, String seasonId) {
+
+    public PlayerStatisticDto findStatistics(String playerId, String seasonId) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "SELECT * FROM player_statistics WHERE player_id = ? AND season_id = ?")) {
+                     "SELECT COUNT(*) AS scored_goals, g.minute_of_goal " +
+                             "FROM goal g " +
+                             "         JOIN \"match\" m ON g.match_id = m.id " +
+                             "WHERE g.player_id = ? " +
+                             "  AND g.own_goal = false " +
+                             "  AND m.season_id = ? " +
+                             "group by g.minute_of_goal ")) {
 
             statement.setString(1, playerId);
             statement.setString(2, seasonId);
 
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
-                    PlayerStatistics stats = new PlayerStatistics();
-                    stats.setId(rs.getString("id"));
-                    stats.setPlayerId(rs.getString("player_id"));
-                    stats.setSeasonId(rs.getString("season_id"));
-                    stats.setScoredGoals(rs.getInt("scored_goals"));
-                    stats.setPlayingTimeValue(rs.getDouble("playing_time_value"));
-                    stats.setPlayingTimeUnit(DurationUnit.valueOf(rs.getString("playing_time_unit")));
-                    return stats;
+                    return playerStatisticMapper.apply(rs);
                 }
+                return null;
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding player statistics", e);
         }
-        return null;
-    }
-
-
-    public PlayerStatisticDto test(String playerId, String seasonId) {
-        return null;
     }
 
 
@@ -382,6 +380,7 @@ public class PlayerRepository {
             }
         }
     }
+
 
     public List<ScorerDto> getScorerOfMatch (String clubId, String matchId) throws SQLException {
         List<ScorerDto> list = new ArrayList<>();

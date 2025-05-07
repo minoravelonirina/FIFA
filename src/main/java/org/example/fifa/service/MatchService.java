@@ -69,7 +69,7 @@ public class MatchService {
         ){
             return ResponseEntity.status(HttpStatus.OK).body(matchRepository.changeStatusOfMatch(id, status));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The status : "+ status+ " is not valid");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Change the status to : "+ status+ " is not allowed");
     }
 
 

@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,14 +30,14 @@ public class SeasonController {
     }
 
     @PostMapping
-    public ResponseEntity<List<Season>> createSeasons(@RequestBody List<CreateSeasonDto> createSeasonDtos) {
+    public ResponseEntity<Object> createSeasons(@RequestBody List<CreateSeasonDto> createSeasonDtos) {
         return ResponseEntity.ok(seasonService.createSeasons(createSeasonDtos));
     }
 
     @PutMapping("/{seasonYear}/status")
-    public ResponseEntity<Season> updateSeasonStatus(
-            @PathVariable Integer seasonYear,
-            @RequestBody UpdateSeasonStatusDto status) {
+    public ResponseEntity<Object> updateSeasonStatus(
+            @PathVariable LocalDate seasonYear,
+            @RequestBody UpdateSeasonStatusDto status) throws SQLException {
         return seasonService.updateStatus(seasonYear, status.getStatus());
     }
 }

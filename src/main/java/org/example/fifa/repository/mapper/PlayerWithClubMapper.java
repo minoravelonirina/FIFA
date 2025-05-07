@@ -1,8 +1,8 @@
 package org.example.fifa.repository.mapper;
 
+import org.example.fifa.model.Club;
 import org.example.fifa.model.enums.Position;
 import org.example.fifa.repository.ClubRepository;
-import org.example.fifa.rest.dto.ClubDto;
 import org.example.fifa.rest.dto.PlayerDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,7 @@ public class PlayerWithClubMapper implements Function<ResultSet, PlayerDto> {
         try {
             String id = resultSet.getString("id");
             String clubId = resultSet.getString("club_id");
-            ClubDto club = clubId != null ? new ClubDto(clubRepository.findById(clubId)) : null;
+            Club club = clubId != null ? clubRepository.findById(clubId) : null;
             Position position = Position.valueOf(resultSet.getString("position"));
             String nationality = resultSet.getString("nationality");
             int age = resultSet.getInt("age");

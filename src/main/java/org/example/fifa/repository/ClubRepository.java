@@ -69,6 +69,7 @@ public class ClubRepository implements CrudDAO<Club>{
         }
     }
 
+
     public ClubWithGoalsDto findByIdClub(String idClub, String matchId) throws SQLException {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
@@ -115,6 +116,7 @@ public class ClubRepository implements CrudDAO<Club>{
         return null;
     }
 
+
     @Override
     public List<Club> update(List<Club> entity) {
         List<Club> clubs = new ArrayList<>();
@@ -159,6 +161,7 @@ public class ClubRepository implements CrudDAO<Club>{
     public void delete(Club entity) {
 
     }
+
 
     public List<ClubStatistics> getAllStatistic(int seasonYear) throws SQLException {
         String sql = """
@@ -253,6 +256,7 @@ public class ClubRepository implements CrudDAO<Club>{
         }
     }
 
+
     private ClubStatistics clubStatisticsMapper(ResultSet resultSet) throws SQLException {
         ClubStatistics stats = new ClubStatistics();
         try {
@@ -278,6 +282,7 @@ public class ClubRepository implements CrudDAO<Club>{
         }
     }
 
+
     private ClubWithGoalsDto clubWithGoalMapper(ResultSet resultSet, String matchId) {
         try {
 
@@ -295,9 +300,6 @@ public class ClubRepository implements CrudDAO<Club>{
         }
     }
 
-    public List<ScorerDto> getScorer(String clubId) throws SQLException {
-        return playerRepository.getScorerOfClub(clubId);
-    }
 
     public List<ScorerDto> getScorerOfMach(String clubId, String matchId) throws SQLException {
         return playerRepository.getScorerOfMatch(clubId, matchId);

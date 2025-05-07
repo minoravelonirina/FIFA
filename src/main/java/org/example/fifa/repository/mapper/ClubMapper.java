@@ -3,7 +3,6 @@ package org.example.fifa.repository.mapper;
 import org.example.fifa.model.Club;
 import org.example.fifa.model.Coach;
 import org.example.fifa.repository.CoachRepository;
-import org.example.fifa.rest.dto.ClubDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

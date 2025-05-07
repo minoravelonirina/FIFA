@@ -1,36 +1,43 @@
 package org.example.fifa.service;
 
+import org.example.fifa.repository.MatchRepository;
 import org.example.fifa.repository.mapper.SeasonMapper;
 import org.example.fifa.model.Season;
 import org.example.fifa.model.enums.Status;
 import org.example.fifa.repository.SeasonRepository;
 import org.example.fifa.rest.dto.CreateSeasonDto;
+import org.example.fifa.rest.dto.MatchDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
 public class SeasonService {
     private final SeasonRepository seasonRepository;
     private final SeasonMapper seasonMapper;
+    private final MatchRepository matchRepository;
 
     @Autowired
-    public SeasonService(SeasonRepository seasonRepository, SeasonMapper seasonMapper) {
+    public SeasonService(SeasonRepository seasonRepository, SeasonMapper seasonMapper, MatchRepository matchRepository) {
         this.seasonRepository = seasonRepository;
         this.seasonMapper = seasonMapper;
+        this.matchRepository = matchRepository;
     }
 
     public List<Season> findAll() {
         return seasonRepository.findAll();
     }
 
-    public List<Season> createSeasons(List<CreateSeasonDto> createSeasonDtos) {
+    public ResponseEntity<Object> createSeasons(List<CreateSeasonDto> createSeasonDtos) {
         if (createSeasonDtos == null || createSeasonDtos.isEmpty()) {
-            throw new IllegalArgumentException("Season list cannot be empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Season list cannot be empty");
         }
 
         createSeasonDtos.forEach(dto -> {
@@ -44,28 +51,43 @@ public class SeasonService {
 
         List<Season> seasons = createSeasonDtos.stream()
                 .map(seasonMapper::toEntity)
-                .collect(Collectors.toList());
+                .toList();
 
-        return seasons.stream()
+        return ResponseEntity.ok( seasons.stream()
                 .map(seasonRepository::save)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
-    public ResponseEntity<Season> updateStatus(Integer year, Status newStatus) {
+
+    public ResponseEntity<Object> updateStatus(LocalDate year, Status newStatus) throws SQLException {
         try {
-            Season season = seasonRepository.findByYear(year);
+            Season season = seasonRepository.findByYear(year.getYear());
+
             if (season == null) {
                 return ResponseEntity.notFound().build();
+            }
+
+            if (newStatus == Status.FINISHED) {
+                List<MatchDto> matches = matchRepository.findAll(year, null, null, null, null);
+                boolean hasUnfinishedMatch = matches.stream()
+                        .anyMatch(matchDto -> matchDto.getActualStatus() != Status.FINISHED);
+
+                if (hasUnfinishedMatch) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("All match is not finished for the season");
+                }
             }
 
             validateStatusTransition(season.getStatus(), newStatus);
             season.setStatus(newStatus);
             Season updatedSeason = seasonRepository.save(season);
             return ResponseEntity.ok(updatedSeason);
+
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().build();
         }
     }
+
 
     private void validateStatusTransition(Status currentStatus, Status newStatus) {
         if (currentStatus == Status.FINISHED ||

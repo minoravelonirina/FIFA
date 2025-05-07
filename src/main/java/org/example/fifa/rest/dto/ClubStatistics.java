@@ -61,36 +61,36 @@ public class ClubStatistics {
         return rankingPoints;
     }
 
-    public void setRankingPoints(int rankingPoints) {
-        this.rankingPoints = rankingPoints;
-    }
-
     public int getScoredGoals() {
         return scoredGoals;
-    }
-
-    public void setScoredGoals(int scoredGoals) {
-        this.scoredGoals = scoredGoals;
     }
 
     public int getConcededGoals() {
         return concededGoals;
     }
 
-    public void setConcededGoals(int concededGoals) {
-        this.concededGoals = concededGoals;
-    }
-
     public int getDifferenceGoals() {
         return differenceGoals;
+    }
+
+    public int getCleanSheetNumber() {
+        return cleanSheetNumber;
+    }
+
+    public void setRankingPoints(int rankingPoints) {
+        this.rankingPoints = rankingPoints;
+    }
+
+    public void setScoredGoals(int scoredGoals) {
+        this.scoredGoals = scoredGoals;
     }
 
     public void setDifferenceGoals(int differenceGoals) {
         this.differenceGoals = differenceGoals;
     }
 
-    public int getCleanSheetNumber() {
-        return cleanSheetNumber;
+    public void setConcededGoals(int concededGoals) {
+        this.concededGoals = concededGoals;
     }
 
     public void setCleanSheetNumber(int cleanSheetNumber) {

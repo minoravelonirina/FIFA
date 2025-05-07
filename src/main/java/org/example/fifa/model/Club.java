@@ -22,6 +22,15 @@ public class Club {
         this.players = players;
     }
 
+    public Club(String id, String name, String acronym, int creationDate, String stadium, Coach coach) {
+        this.id = id;
+        this.name = name;
+        this.acronym = acronym;
+        this.yearCreation = creationDate;
+        this.stadium = stadium;
+        this.coach = coach;
+    }
+
     public Club(){};
 
     public String getId() {

@@ -51,6 +51,33 @@ public class ClubWithGoalsDto {
                 .sum();
     }
 
+
+    public int getScoredGoals() {
+        // Nombre de buts marqués par le club (but non contre son camp)
+        return (int) scorers.stream()
+                .filter(scorer -> !scorer.isOwnGoal())
+                .count();
+    }
+
+    public int getConcededGoals() {
+        // Nombre de buts contre son camp (own goal) pour ce club
+        return (int) scorers.stream()
+                .filter(ScorerDto::isOwnGoal)
+                .count();
+    }
+
+    public int getDifferenceGoals() {
+        return getScoredGoals() - getConcededGoals();
+    }
+
+    public int getCleanSheetNumber() {
+        return getConcededGoals() == 0 ? 1 : 0;
+    }
+
+    public int getRankingPoints() {
+        return 0;
+    }
+
     public void setScore(int score) {};
 
     public List<ScorerDto> getScorers() {

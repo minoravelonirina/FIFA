@@ -7,14 +7,14 @@ import java.util.Objects;
 
 public class PlayerDto {
     private String id;
-    private Club club;
+    private ClubDto club;
     private Position position;
     private String nationality;
     private int age;
     private String name;
     private int number;
 
-    public PlayerDto(String id, Club club, Position position, String nationality, int age, String name, int number) {
+    public PlayerDto(String id, ClubDto club, Position position, String nationality, int age, String name, int number) {
         this.id = id;
         this.club = club;
         this.position = position;
@@ -34,11 +34,11 @@ public class PlayerDto {
         this.id = id;
     }
 
-    public Club getClub() {
+    public ClubDto getClub() {
         return club;
     }
 
-    public void setClub(Club club) {
+    public void setClub(ClubDto club) {
         this.club = club;
     }
 

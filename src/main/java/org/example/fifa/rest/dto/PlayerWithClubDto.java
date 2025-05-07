@@ -32,12 +32,10 @@ public class PlayerWithClubDto {
 
 package org.example.fifa.rest.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.fifa.model.Club;
 import org.example.fifa.model.enums.Position;
-import org.example.fifa.rest.dto.ClubDto;
 
 @Data
 @NoArgsConstructor

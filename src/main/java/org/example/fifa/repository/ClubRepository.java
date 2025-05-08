@@ -140,6 +140,7 @@ public class ClubRepository implements CrudDAO<Club>{
                     statement.setString(5, club.getStadium());
                     statement.setString(6, club.getCoach().getId());
                     coachRepository.save(club.getCoach());
+
                     statement.addBatch();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);

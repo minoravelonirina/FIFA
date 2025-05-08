@@ -30,60 +30,60 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        return httpSecurity
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-//                .build();
-
-
         return httpSecurity
-
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        authorize ->
-                                authorize
-                                        .requestMatchers(
-                                                "/v2/api-docs",
-                                                "/v3/api-docs",
-                                                "/v3/api-docs/**",
-                                                "/swagger-resources",
-                                                "/swagger-resources/**",
-                                                "/configuration/ui",
-                                                "/configuration/security",
-                                                "/swagger-ui/**",
-                                                "/webjars/**",
-                                                "/swagger-ui.html"
-                                        )
-                                        .permitAll()
-                                        .requestMatchers(GET, "/clubs").permitAll()
-                                        .requestMatchers(GET, "/clubs/**").permitAll()
-                                        .requestMatchers(GET, "/clubs/statistics/**").permitAll()
-                                        .requestMatchers(POST, "/clubs").permitAll()
-                                        .requestMatchers(GET, "/players").permitAll()
-                                        .requestMatchers(PUT, "/players").permitAll()
-                                        .requestMatchers(POST, "/synchronization").permitAll()
-                                        .requestMatchers(GET, "/synchronization/**").permitAll()
-                                        .requestMatchers(GET, "/matches/**").permitAll()
-                                        .requestMatchers(POST, "/matches/**").permitAll()
-                                        .requestMatchers(GET, "/players/**").permitAll()
-                                        .requestMatchers(PUT, "/players/**").permitAll()
-                                        .requestMatchers(GET, "/").permitAll()
-                                        .requestMatchers(POST, "/matchMaker/**").permitAll()
-                                        .requestMatchers(GET, "/ping").permitAll()
-                                        .requestMatchers(GET, "/pong").permitAll()
-                                        .requestMatchers(GET, "/players/*/statistics/**").permitAll()
-                                        .requestMatchers(PUT, "/matches/**").permitAll()
-                                        .requestMatchers(PUT, "/seasons/**").permitAll()
-                                        .requestMatchers(POST, "/seasons/**").permitAll()
-                                        .requestMatchers(GET, "/seasons/**").permitAll()
-                                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(new ApiKeyAuthFilter(), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(httpSecuritySessionManagementConfigurer ->
-                        httpSecuritySessionManagementConfigurer
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .build();
+//
+//
+//        return httpSecurity
+//
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests(
+//                        authorize ->
+//                                authorize
+//                                        .requestMatchers(
+//                                                "/v2/api-docs",
+//                                                "/v3/api-docs",
+//                                                "/v3/api-docs/**",
+//                                                "/swagger-resources",
+//                                                "/swagger-resources/**",
+//                                                "/configuration/ui",
+//                                                "/configuration/security",
+//                                                "/swagger-ui/**",
+//                                                "/webjars/**",
+//                                                "/swagger-ui.html"
+//                                        )
+//                                        .permitAll()
+//                                        .requestMatchers(GET, "/clubs").permitAll()
+//                                        .requestMatchers(GET, "/clubs/**").permitAll()
+//                                        .requestMatchers(GET, "/clubs/statistics/**").permitAll()
+//                                        .requestMatchers(POST, "/clubs").permitAll()
+//                                        .requestMatchers(GET, "/players").permitAll()
+//                                        .requestMatchers(PUT, "/players").permitAll()
+//                                        .requestMatchers(POST, "/synchronization").permitAll()
+//                                        .requestMatchers(GET, "/synchronization/**").permitAll()
+//                                        .requestMatchers(GET, "/matches/**").permitAll()
+//                                        .requestMatchers(POST, "/matches/**").permitAll()
+//                                        .requestMatchers(GET, "/players/**").permitAll()
+//                                        .requestMatchers(PUT, "/players/**").permitAll()
+//                                        .requestMatchers(GET, "/").permitAll()
+//                                        .requestMatchers(POST, "/matchMaker/**").permitAll()
+//                                        .requestMatchers(GET, "/ping").permitAll()
+//                                        .requestMatchers(GET, "/pong").permitAll()
+//                                        .requestMatchers(GET, "/players/*/statistics/**").permitAll()
+//                                        .requestMatchers(PUT, "/matches/**").permitAll()
+//                                        .requestMatchers(PUT, "/seasons/**").permitAll()
+//                                        .requestMatchers(POST, "/seasons/**").permitAll()
+//                                        .requestMatchers(GET, "/seasons/**").permitAll()
+//                                        .anyRequest().authenticated()
+//                )
+//                .addFilterBefore(new ApiKeyAuthFilter(), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+//                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+//                        httpSecuritySessionManagementConfigurer
+//                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                )
+//                .build();
     }
 
     @Bean

@@ -22,6 +22,7 @@ public class Coach {
 
     public Coach(){};
 
+    @JsonIgnore
     public String getId() {
         return id;
     }

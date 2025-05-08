@@ -14,6 +14,7 @@ public class CoachMapper implements Function<ResultSet, Coach> {
     public Coach apply(ResultSet resultSet) {
         try {
             return new Coach(
+                    resultSet.getString("id"),
                     resultSet.getString("name"),
                     resultSet.getString("nationality")
             );

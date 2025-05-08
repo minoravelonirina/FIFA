@@ -31,9 +31,9 @@ public class MatchService {
 
         List<MatchDto> matchList = matchRepository.findAll(seasonYear, null, null, null, null);
 
-        if (!matchList.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The list of matches for the specific season is already generated");
-        }
+//        if (!matchList.isEmpty()){
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The list of matches for the specific season is already generated");
+//        }
         if (season == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The season is not found");
         }

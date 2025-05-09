@@ -3,21 +3,24 @@ package org.example.fifa.model;
 
 import org.example.fifa.model.enums.TransferType;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 public class Transfer {
-    private String id;
+    private UUID id;
     private String playerId;
     private String clubId;
     private TransferType type;
-    private String transferDate;
+    private LocalDateTime transferDate;
 
     public Transfer() {
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -45,15 +48,15 @@ public class Transfer {
         this.type = type;
     }
 
-    public String getTransferDate() {
+    public LocalDateTime getTransferDate() {
         return transferDate;
     }
 
-    public void setTransferDate(String transferDate) {
+    public void setTransferDate(LocalDateTime transferDate) {
         this.transferDate = transferDate;
     }
 
-    public Transfer(String id, String playerId, String clubId, TransferType type, String transferDate) {
+    public Transfer(UUID id, String playerId, String clubId, TransferType type, LocalDateTime transferDate) {
         this.id = id;
         this.playerId = playerId;
         this.clubId = clubId;

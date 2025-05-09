@@ -1,73 +1,3 @@
-public List<Player> getPlayersByClubId(String id){
-        List<Player> players = new ArrayList<>();
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "select * from player where club_id = ?"
-             )) {
-            statement.setString(1, id);
-            try (ResultSet resultSet){
-
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-// CLUB ///
-
-    // PUT http://localhost:8080/clubs/{id}/players
-        Les joueurs fournis dans le corps de la requête remplacent les joueurs existants dans le club.
-        Dans le cas où un joueur est détaché du club, il est toujours possible de récupérer ses statistiques individuelles, et les statistiques collectives ne sont pas modifiées.
-        Par exemple, si un joueur a marqué 10 buts durant la saison, même s’il ne fait plus partie du club, les statistiques du club (buts marqués) ne changent pas.
-        Enfin, il ne doit plus apparaître dans la liste des joueurs pouvant effectuer des actions pour les matchs restants, si la saison n’est pas encore terminée.
-        Dans le cas où l’un des joueurs existants est encore attaché à un autre club, l’API doit retourner une erreur 400 BAD_REQUEST.
-
-
-    // POST http://localhost:8080/clubs/{id}/players
-        Les joueurs fournis dans le corps de la requête sont créés s’ils n’existent pas, ou rattachés au club s’ils ne sont actuellement attachés à aucun club.
-        Dans le cas où l’un des joueurs est déjà rattaché à un autre club, l’API doit retourner une erreur 400 BAD_REQUEST.
-        De plus, si un joueur existe déjà et est identifié par son identifiant (ID), les valeurs fournies dans la requête ne mettent pas à jour ses attributs existants.
-
-
-    // GET : http://localhost:8080/clubs/statistics/{seasonYear}
-    hasToBeClassified: boolean
-                       La valeur par défaut est false. Dans ce cas, la liste des statistiques est retournée triée par nom de club en ordre croissant (ASC).
-                       Si la valeur fournie est true, alors la liste des statistiques est retournée triée par classement.
-                       Le classement est calculé en respectant l’ordre suivant des facteurs :
-                       Points de classement : le club ayant le plus de points de classement est classé en premier.
-                       Différence de buts : si plusieurs clubs ont le même nombre de points, celui ayant la meilleure différence de buts est classé en premier.
-                       Nombre de clean sheets : si plusieurs clubs ont le même nombre de points et la même différence de buts, celui ayant le plus de clean sheets (matchs sans encaisser de but) est classé en premier.
-
-
-
-/// MATCH   /////
-    // POST http://localhost:8080/matchMaker/{seasonYear}
-        Seules les saisons ayant le statut STARTED peuvent générer des matchs.
-        Si le statut de la saison est NOT_STARTED ou FINISHED, l’API doit retourner une erreur 400 BAD_REQUEST.
-        Si les matchs de la saison ont déjà été générés, l’API doit également retourner une erreur 400 BAD_REQUEST.
-        Sinon, deux matchs doivent être créés pour chaque paire de clubs : un match à domicile ("HOME") et un match à l'extérieur ("AWAY").
-        Consultez les instructions dans le contexte pour plus d’explications et d’exemples.
-        Enfin, si l’année de la saison fournie (seasonYear) n’existe pas, l’API doit retourner une erreur 404 NOT_FOUND.
-
-
-    // PUT http://localhost:8080/matches/{id}/status
-       L’ordre suivant des statuts doit être respecté : NOT_STARTED > STARTED > FINISHED.
-       En cas de tentative de changement de statut dans un ordre non conforme, une erreur 400 BAD_REQUEST doit être retournée.
-       Lorsque le statut d’un match passe à FINISHED, les classements et statistiques des clubs doivent être mis à jour.
-       Cela signifie que, après qu’un match est terminé, la réponse retournée par GET /clubs/statistics/{seasonYear} doit refléter les nouvelles données.
-       Rappel des règles de points attribués selon le résultat d’un match :
-       En cas de victoire, le club gagnant obtient 3 points.
-       En cas de match nul, chaque club obtient 1 point.
-       En cas de défaite, le club perdant obtient 0 point.
-
-
-    // POST  http://localhost:8080/matches/{id}/goal
-        Seuls les matchs ayant le statut STARTED peuvent recevoir des buts.
-        Si le match est en statut NOT_STARTED ou FINISHED, l’API doit retourner une erreur 400 BAD_REQUEST.
-        Après chaque requête (ajout d’un but), les statistiques du joueur buteur doivent être mises à jour.
-        Cela signifie qu’après qu’un but est marqué, la réponse retournée par GET /players/{id}/statistics/{seasonYear} doit refléter cette mise à jour.
-
 
         // REQUETE SQL POUR CREER UN ID PRESONNALISER //
         CREATE SEQUENCE goal_id_seq START 1;
@@ -87,3 +17,478 @@ public List<Player> getPlayersByClubId(String id){
             BEFORE INSERT ON goal
             FOR EACH ROW
         EXECUTE FUNCTION generate_goal_id();
+
+
+///// URL /////
+
+###
+PUT http://localhost:8080/seasons/2024-12-12/status
+X-API-KEY: 3f04b9fa-8c21-4e6d-b0e4-7fdc9a1a5d2e
+Content-Type: application/json
+
+{
+  "status": "FINISHED"
+}
+
+###
+POST http://localhost:8080/seasons
+X-API-KEY: 3f04b9fa-8c21-4e6d-b0e4-7fdc9a1a5d2e
+Content-Type: application/json
+
+[
+  {
+    "year": 2027,
+    "alias": "S2027-2028"
+  }
+]
+
+###
+PUT http://localhost:8080/players
+X-API-KEY: 3f04b9fa-8c21-4e6d-b0e4-7fdc9a1a5d2e
+Content-Type: application/json
+
+[
+  {
+    "id": "id1",
+    "name": "Gardien1",
+    "number": 1,
+    "position": "GOAL_KEEPER",
+    "nationality": "Espagnol",
+    "age": 30
+  },
+  {
+    "id": "id2",
+    "name": "Defense 1",
+    "number": 2,
+    "position": "DEFENSE",
+    "nationality": "Espagnol",
+    "age": 25
+  },
+  {
+    "id": "id3",
+    "name": "Miliey1",
+    "number": 5,
+    "position": "MIDFIELDER",
+    "nationality": "Espagnol",
+    "age": 24
+  },
+  {
+    "id": "id4",
+    "name": "Attaquant1",
+    "number": 7,
+    "position": "STRIKER",
+    "nationality": "Espagnol",
+    "age": 17
+  },
+  {
+    "id": "id5",
+    "name": "Gardien2",
+    "number": 1,
+    "position": "GOAL_KEEPER",
+    "nationality": "Espagnol",
+    "age": 21
+  },
+  {
+    "id": "id6",
+    "name": "Defense2",
+    "number": 2,
+    "position": "DEFENSE",
+    "nationality": "Belge",
+    "age": 34
+  },
+  {
+    "id": "id7",
+    "name": "Milieu2",
+    "number": 5,
+    "position": "MIDFIELDER",
+    "nationality": "Francais",
+    "age": 29
+  },
+  {
+    "id": "id8",
+    "name": "Attaquant2",
+    "number": 7,
+    "position": "STRIKER",
+    "nationality": "Allemand",
+    "age": 18
+  },
+  {
+    "id": "id9",
+    "name": "Gardien3",
+    "number": 1,
+    "position": "GOAL_KEEPER",
+    "nationality": "Bresilien",
+    "age": 28
+  },
+  {
+    "id": "id10",
+    "name": "Defense 3",
+    "number": 2,
+    "position": "DEFENSE",
+    "nationality": "Bresilien",
+    "age": 21
+  },
+  {
+    "id": "id11",
+    "name": "Milieu3",
+    "number": 5,
+    "position": "MIDFIELDER",
+    "nationality": "Francais",
+    "age": 29
+  },
+  {
+    "id": "id12",
+    "name": "Attaquant3",
+    "number": 7,
+    "position": "STRIKER",
+    "nationality": "Allemand",
+    "age": 23
+  }
+]
+
+
+###
+PUT http://localhost:8080/clubs
+X-API-KEY: 3f04b9fa-8c21-4e6d-b0e4-7fdc9a1a5d2e
+Content-Type: application/json
+
+[
+  {
+    "id": "cl1",
+    "name": "Club 1",
+    "acronym": "C1",
+    "yearCreation": 1902,
+    "stadium": "Stade 1",
+    "coach": {
+      "id": "C1",
+      "name": "Entraineur 1",
+      "nationality": "Francais"
+    },
+    "players": []
+  },
+  {
+    "id": "cl2",
+    "name": "Club 2",
+    "acronym": "C2",
+    "yearCreation": 1905,
+    "stadium": "Stade 2",
+    "coach": {
+      "id": "C2",
+      "name": "Entraineur 2",
+      "nationality": "Italien"
+    },
+    "players": []
+  },
+  {
+    "id": "cl3",
+    "name": "Club 3",
+    "acronym": "C3",
+    "yearCreation": 1910,
+    "stadium": "Stade 3",
+    "coach": {
+      "id": "C3",
+      "name": "Entraineur 3",
+      "nationality": "Allemand"
+    },
+    "players": []
+  }
+]
+
+
+###
+PUT http://localhost:8080/clubs/cl1/players
+Content-Type: application/json
+
+[
+  {
+    "id": "id1",
+    "name": "Gardien1",
+    "number": 1,
+    "position": "GOAL_KEEPER",
+    "nationality": "Espagnol",
+    "age": 30
+  },
+  {
+    "id": "id2",
+    "name": "Defense 1",
+    "number": 2,
+    "position": "DEFENSE",
+    "nationality": "Espagnol",
+    "age": 25
+  },
+  {
+    "id": "id3",
+    "name": "Miliey1",
+    "number": 5,
+    "position": "MIDFIELDER",
+    "nationality": "Espagnol",
+    "age": 24
+  },
+  {
+    "id": "id4",
+    "name": "Attaquant1",
+    "number": 7,
+    "position": "STRIKER",
+    "nationality": "Espagnol",
+    "age": 17
+  }
+]
+
+
+###
+POST http://localhost:8080/clubs/cl1/players
+Content-Type: application/json
+
+[
+  {
+    "id": "id1",
+    "name": "Gardien1",
+    "number": 1,
+    "position": "GOAL_KEEPER",
+    "nationality": "Espagnol",
+    "age": 30
+  },
+  {
+    "id": "id2",
+    "name": "Defense 1",
+    "number": 2,
+    "position": "DEFENSE",
+    "nationality": "Espagnol",
+    "age": 25
+  },
+  {
+    "id": "id3",
+    "name": "Miliey1",
+    "number": 5,
+    "position": "MIDFIELDER",
+    "nationality": "Espagnol",
+    "age": 24
+  },
+  {
+    "id": "id4",
+    "name": "Attaquant1",
+    "number": 7,
+    "position": "STRIKER",
+    "nationality": "Espagnol",
+    "age": 17
+  }
+]
+
+###
+POST http://localhost:8080/matchMaker/2024-10-10
+Content-Type: application/json
+
+[
+  {
+    "id": "M1",
+    "clubPlayingHome": {
+      "id": "cl1",
+      "name": "Club 1",
+      "acronym": "C1",
+      "yearCreation": 1902,
+      "stadium": "Stade 1",
+      "coach": {
+        "id": "C1",
+        "name": "Entraineur 1",
+        "nationality": "Francais"
+      },
+      "players": []
+    },
+    "clubPlayingAway": {
+      "id": "cl2",
+      "name": "Club 2",
+      "acronym": "C2",
+      "yearCreation": 1905,
+      "stadium": "Stade 2",
+      "coach": {
+        "id": "C2",
+        "name": "Entraineur 2",
+        "nationality": "Italien"
+      },
+      "players": []
+},
+    "stadium": "stade 1",
+    "matchDatetime": "2025-05-07T08:40:26.441Z",
+    "actualStatus": "NOT_STARTED"
+  },
+  {
+    "id": "M2",
+    "clubPlayingHome": {
+      "id": "cl2",
+      "name": "Club 2",
+      "acronym": "C2",
+      "yearCreation": 1905,
+      "stadium": "Stade 2",
+      "coach": {
+        "id": "C2",
+        "name": "Entraineur 2",
+        "nationality": "Italien"
+      },
+      "players": []
+    },
+    "clubPlayingAway": {
+      "id": "cl3",
+      "name": "Club 3",
+      "acronym": "C3",
+      "yearCreation": 1903,
+      "stadium": "Stade 3",
+      "coach": {
+        "id": "C3",
+        "name": "Entraineur 3",
+        "nationality": "Francais"
+      },
+      "players": []
+    },
+    "stadium": "stade 2",
+    "matchDatetime": "2025-05-07T08:40:26.441Z",
+    "actualStatus": "NOT_STARTED"
+  },
+  {
+    "id": "M3",
+    "clubPlayingHome": {
+      "id": "cl1",
+      "name": "Club 1",
+      "acronym": "C1",
+      "yearCreation": 1902,
+      "stadium": "Stade 1",
+      "coach": {
+        "id": "C1",
+        "name": "Entraineur 1",
+        "nationality": "Francais"
+      },
+      "players": []
+    },
+    "clubPlayingAway": {
+      "id": "cl3",
+      "name": "Club 3",
+      "acronym": "C3",
+      "yearCreation": 1910,
+      "stadium": "Stade 3",
+      "coach": {
+        "id": "C3",
+        "name": "Entraineur 3",
+        "nationality": "Allemand"
+      },
+      "players": []
+    },
+    "stadium": "stade 1",
+    "matchDatetime": "2025-05-07T08:40:26.441Z",
+    "actualStatus": "NOT_STARTED"
+  },
+
+  {
+    "id": "M4",
+    "clubPlayingHome": {
+      "id": "cl3",
+      "name": "Club 3",
+      "acronym": "C3",
+      "yearCreation": 1910,
+      "stadium": "Stade 3",
+      "coach": {
+        "id": "C3",
+        "name": "Entraineur 3",
+        "nationality": "Allemand"
+      },
+      "players": []
+    },
+    "clubPlayingAway": {
+      "id": "cl2",
+      "name": "Club 2",
+      "acronym": "C2",
+      "yearCreation": 1905,
+      "stadium": "Stade 2",
+      "coach": {
+        "id": "C2",
+        "name": "Entraineur 2",
+        "nationality": "Italien"
+      },
+      "players": []
+    },
+    "stadium": "stade 3",
+    "matchDatetime": "2025-05-07T08:40:26.441Z",
+    "actualStatus": "NOT_STARTED"
+  },
+
+  {
+    "id": "M5",
+    "clubPlayingHome": {
+      "id": "cl2",
+      "name": "Club 2",
+      "acronym": "C2",
+      "yearCreation": 1905,
+      "stadium": "Stade 2",
+      "coach": {
+        "id": "C2",
+        "name": "Entraineur 2",
+        "nationality": "Italien"
+      },
+      "players": []
+    },
+    "clubPlayingAway": {
+        "id": "cl1",
+        "name": "Club 1",
+        "acronym": "C1",
+        "yearCreation": 1902,
+        "stadium": "Stade 1",
+        "coach": {
+          "id": "C1",
+          "name": "Entraineur 1",
+          "nationality": "Francais"
+        },
+        "players": []
+    },
+    "stadium": "stade 2",
+    "matchDatetime": "2025-05-07T08:40:26.441Z",
+    "actualStatus": "NOT_STARTED"
+  },
+  {
+    "id": "M6",
+    "clubPlayingHome": {
+      "id": "cl3",
+      "name": "Club 3",
+      "acronym": "C3",
+      "yearCreation": 1910,
+      "stadium": "Stade 3",
+      "coach": {
+        "id": "C3",
+        "name": "Entraineur 3",
+        "nationality": "Allemand"
+      },
+      "players": []
+    },
+    "clubPlayingAway": {
+      "id": "cl1",
+      "name": "Club 1",
+      "acronym": "C1",
+      "yearCreation": 1902,
+      "stadium": "Stade 1",
+      "coach": {
+        "id": "C1",
+        "name": "Entraineur 1",
+        "nationality": "Francais"
+      },
+      "players": []
+    },
+    "stadium": "stade 3",
+    "matchDatetime": "2025-05-07T08:40:26.441Z",
+    "actualStatus": "NOT_STARTED"
+  }
+]
+
+
+
+###
+POST http://localhost:8080/matches/M6/goals
+Content-Type: application/json
+
+[
+  {
+    "clubId": "cl1",
+    "scorerIdentifier": "id3",
+    "minuteOfGoal": 90
+  }
+]
+
+###
+PUT http://localhost:8080/matches/M6/status?
+    status=STARTED

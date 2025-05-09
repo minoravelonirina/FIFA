@@ -18,6 +18,18 @@ public class TransferService {
     }
 
     public List<Transfer> getAllTransfers() {
+//        registerTransfer();
         return transferRepository.findAll();
+    }
+
+    public void registerTransfer(String playerId, String clubId, TransferType type) {
+        Transfer transfer = new Transfer();
+        transfer.setId(UUID.randomUUID().toString());
+        transfer.setPlayerId(playerId);
+        transfer.setClubId(clubId);
+        transfer.setType(type);
+        transfer.setTransferDate(LocalDateTime.now().toString());
+
+        transferRepository.save(transfer);
     }
 }

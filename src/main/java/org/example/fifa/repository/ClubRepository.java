@@ -118,7 +118,7 @@ public class ClubRepository implements CrudDAO<Club>{
 
 
     @Override
-    public List<Club> update(List<Club> entity) {
+    public List<Club> update(List<Club> entity) throws SQLException {
         List<Club> clubs = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(
@@ -140,21 +140,17 @@ public class ClubRepository implements CrudDAO<Club>{
                     statement.setString(5, club.getStadium());
                     statement.setString(6, club.getCoach().getId());
                     coachRepository.save(club.getCoach());
-
-                    statement.addBatch();
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        while (resultSet.next()) {
+                            clubs.add(clubMapper.apply(resultSet));
+                        }
+                    }
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
             });
-            try(ResultSet resultSet = statement.executeQuery()){
-                while (resultSet.next()){
-                    clubs.add(clubMapper.apply(resultSet));
-                }
-                return clubs;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
+        return clubs;
     }
 
 

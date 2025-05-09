@@ -25,8 +25,6 @@ public class MatchRepository implements CrudDAO<Match>{
     @Autowired private DataSource dataSource;
     @Autowired private ClubRepository clubRepository;
     @Autowired private SeasonRepository seasonRepository;
-    @Autowired
-    private PlayerRepository playerRepository;
 
     @Override
     public List<Match> findAll() {
@@ -61,8 +59,6 @@ public class MatchRepository implements CrudDAO<Match>{
         List<MatchDto> matchDtos = new ArrayList<>();
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-//            "insert into \"match\" (id, match_datetime, status, stadium, club_playing_home, club_playing_away, season_id) " +
-//                    "values (?, ?, ?, ?, ?, ?, ?) returning id, match_datetime, status, stadium, club_playing_home, club_playing_away"
                      "INSERT INTO \"match\" (" +
                              "id, match_datetime, status, stadium, club_playing_home, club_playing_away, season_id) " +
                              "SELECT ?, ?, ?::status, ?, ?, ?, ? " +
@@ -81,7 +77,6 @@ public class MatchRepository implements CrudDAO<Match>{
                 Season season = seasonRepository.findByYear(seasonYear.getYear());
                 statement.setString(7, season.getId());
                 statement.setInt(8, seasonYear.getYear());
-                statement.addBatch();
             }
             try (ResultSet resultSet = statement.executeQuery()){
                 while(resultSet.next()){

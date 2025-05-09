@@ -9,7 +9,6 @@ create type player_position as enum (
 );
 create type status as enum ('NOT_STARTED', 'STARTED', 'FINISHED');
 create type duration_unit as enum ('SECOND', 'MINUTE', 'HOUR');
-create type transfer_type as enum ('IN', 'OUT');
 
 
 create table season (
@@ -69,8 +68,6 @@ create table goal (
 
 
 
-
-
 -- 1. Insertion de la saison 2024-2025
 INSERT INTO season (id, year, alias, status)
 VALUES ('S2024-2025', 2024, 'S2024-2025', 'NOT_STARTED');
@@ -107,7 +104,7 @@ INSERT INTO "match" (id, club_playing_home, club_playing_away, stadium, match_da
                                                                                                                ('M6', 'CL-RMA', 'CL-ATM', 'Santiago Bernabeu', NULL, 'NOT_STARTED', 'S2024-2025');
 
 
- sql = """
+String sql = """
 
                 SELECT\s
                c.id,

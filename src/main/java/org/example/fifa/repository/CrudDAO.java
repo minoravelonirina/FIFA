@@ -8,6 +8,6 @@ public interface CrudDAO<E> {
     E findById(String id) throws SQLException;
     E findByName(String name);
     List<E> save(List<E> entity);
-    List<E> update(List<E> entities);
+    List<E> update(List<E> entities) throws SQLException;
     void delete(E entity);
 }

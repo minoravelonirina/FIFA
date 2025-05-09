@@ -9,13 +9,11 @@ import org.example.fifa.repository.*;
 import org.example.fifa.rest.dto.ClubStatistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -29,17 +27,13 @@ public class ClubService {
 
 
     public ResponseEntity<Object> getClubList() throws SQLException {
-        List<Club> clubList = new ArrayList<>();
-        clubRepository.findAll().forEach(club -> {
-            clubList.add(club);
-        });
+        List<Club> clubList = new ArrayList<>(clubRepository.findAll());
         return ResponseEntity.status(HttpStatus.OK).body(clubList);
     }
 
 
-    public ResponseEntity<Object> createOrUpdateClubs(List<Club> clubs){
-        List<Club> clubList = new ArrayList<>();
-        clubList.addAll(clubRepository.update(clubs));
+    public ResponseEntity<Object> createOrUpdateClubs(List<Club> clubs) throws SQLException {
+        List<Club> clubList = new ArrayList<>(clubRepository.update(clubs));
         return ResponseEntity.status(HttpStatus.OK).body(clubList);
     }
 

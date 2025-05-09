@@ -23,7 +23,7 @@ public class ClubController {
     }
 
     @PutMapping("/clubs")
-    public ResponseEntity<Object> createOrUpdateClubs(@RequestBody List<Club> clubs){
+    public ResponseEntity<Object> createOrUpdateClubs(@RequestBody List<Club> clubs) throws SQLException {
         return clubService.createOrUpdateClubs(clubs);
     }
 

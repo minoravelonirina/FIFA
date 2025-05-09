@@ -2,8 +2,7 @@ package org.example.fifa.repository;
 
 
 import org.example.fifa.model.Player;
-import org.example.fifa.model.PlayerStatistics;
-import org.example.fifa.model.enums.DurationUnit;
+import org.example.fifa.model.enums.TransferType;
 import org.example.fifa.model.exception.NotFoundException;
 import org.example.fifa.repository.mapper.PlayerMapper;
 import org.example.fifa.repository.mapper.PlayerStatisticMapper;
@@ -26,89 +25,16 @@ public class PlayerRepository {
     private final PlayerMapper playerMapper;
     private final PlayerWithClubRepository playerWithClubRepository;
     private final PlayerStatisticMapper playerStatisticMapper;
+    private final TransferRepository transferRepository;
 
     @Autowired
-    public PlayerRepository(DataSource dataSource, PlayerMapper playerMapper, PlayerWithClubRepository playerWithClubRepository, PlayerStatisticMapper playerStatisticMapper) {
+    public PlayerRepository(DataSource dataSource, PlayerMapper playerMapper, PlayerWithClubRepository playerWithClubRepository, PlayerStatisticMapper playerStatisticMapper, TransferRepository transferRepository) {
         this.dataSource = dataSource;
         this.playerMapper = playerMapper;
         this.playerWithClubRepository = playerWithClubRepository;
         this.playerStatisticMapper = playerStatisticMapper;
+        this.transferRepository = transferRepository;
     }
-
-//    public String findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
-//        StringBuilder json = new StringBuilder("[");
-//        StringBuilder sql = new StringBuilder(
-//                "SELECT p.id, p.name, p.number, p.position, p.nationality, p.age, " +
-//                        "c.id AS club_id, c.name AS club_name, c.acronym AS club_acronym, " +
-//                        "c.year_creation AS club_year_creation, c.stadium AS club_stadium, " +
-//                        "ch.name AS coach_name, ch.nationality AS coach_nationality " +
-//                        "FROM player p " +
-//                        "LEFT JOIN club c ON p.club_id = c.id " +
-//                        "LEFT JOIN coach ch ON c.coach_id = ch.id " +
-//                        "WHERE 1=1"
-//        );
-//
-//        List<Object> params = new ArrayList<>();
-//        if (name != null && !name.isEmpty()) {
-//            sql.append(" AND LOWER(p.name) LIKE LOWER(?)");
-//            params.add("%" + name + "%");
-//        }
-//        if (ageMinimum != null) {
-//            sql.append(" AND p.age >= ?");
-//            params.add(ageMinimum);
-//        }
-//        if (ageMaximum != null) {
-//            sql.append(" AND p.age <= ?");
-//            params.add(ageMaximum);
-//        }
-//        if (clubName != null && !clubName.isEmpty()) {
-//            sql.append(" AND LOWER(c.name) LIKE LOWER(?)");
-//            params.add("%" + clubName + "%");
-//        }
-//
-//        try (Connection conn = dataSource.getConnection();
-//             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
-//
-//            for (int i = 0; i < params.size(); i++) {
-//                stmt.setObject(i + 1, params.get(i));
-//            }
-//
-//            try (ResultSet rs = stmt.executeQuery()) {
-//                boolean first = true;
-//                while (rs.next()) {
-//                    if (!first) json.append(",");
-//                    first = false;
-//
-//                    json.append("{")
-//                            .append("\"id\":\"").append(rs.getString("id")).append("\",")
-//                            .append("\"name\":\"").append(rs.getString("name")).append("\",")
-//                            .append("\"number\":\"").append(rs.getInt("number")).append(",")
-//                            .append("\"position\":\"").append(rs.getString("position")).append("\",")
-//                            .append("\"nationality\":\"").append(rs.getString("nationality")).append("\",")
-//                            .append("\"age\":").append(rs.getInt("age")).append(",")
-//                            .append("\"club\":{")
-//                            .append("\"id\":\"").append(rs.getString("club_id")).append("\",")
-//                            .append("\"name\":\"").append(rs.getString("club_name")).append("\",")
-//                            .append("\"acronym\":\"").append(rs.getString("club_acronym")).append("\",")
-//                            .append("\"yearCreation\":").append(rs.getInt("club_year_creation")).append(",")
-//                            .append("\"stadium\":\"").append(rs.getString("club_stadium")).append("\",")
-//                            .append("\"coach\":{")
-//                            .append("\"name\":\"").append(rs.getString("coach_name")).append("\",")
-//                            .append("\"nationality\":\"").append(rs.getString("coach_nationality")).append("\"")
-//                            .append("}")
-//                            .append("}")
-//                            .append("}");
-//                }
-//            }
-//
-//        } catch (SQLException e) {
-//            throw new RuntimeException("Erreur lors de la récupération des joueurs", e);
-//        }
-//
-//        json.append("]");
-//        return json.toString();
-//    }
-
 
     public List<PlayerDto> findPlayers(String name, Integer ageMinimum, Integer ageMaximum, String clubName) {
 //        StringBuilder json = new StringBuilder("[");
@@ -237,16 +163,25 @@ public class PlayerRepository {
         }
     }
 
-    public List<Player> setClubID(String id, List<Player> players) {
+    public void setClubID(String newClubId, List<Player> players, String actualClubId) {
         List<Player> playerList = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection()) {
             for (Player player : players) {
+
+                if (newClubId == null){
+                    transferRepository.registerTransfer(player.getId(), actualClubId, TransferType.OUT);
+                }
+                else {
+                    transferRepository.registerTransfer(player.getId(), newClubId, TransferType.IN);
+                }
+
+
                 try (PreparedStatement statement = connection.prepareStatement(
                         "UPDATE player SET club_id = ? WHERE id = ? " +
                                 "RETURNING id, name, number, age, position, nationality, club_id")) {
 
-                    statement.setString(1, id);
+                    statement.setString(1, newClubId);
                     statement.setString(2, player.getId());
 
                     try (ResultSet resultSet = statement.executeQuery()) {
@@ -258,7 +193,6 @@ public class PlayerRepository {
                     }
                 }
             }
-            return playerList;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -274,7 +208,7 @@ public class PlayerRepository {
 
             if (playerDto == null) {
                 finalList.add(player); // nouveau joueur
-            } else if (playerDto.getClub() == null) {
+            } else if (playerDto.getClub() == null || playerDto.getClub().getId().equals(clubId)) {
                 // joueur existant, pas encore attaché
                 finalList.add(new Player(
                         playerDto.getId(),
@@ -293,17 +227,19 @@ public class PlayerRepository {
 
         // 2. Supprimer les anciens joueurs du club uniquement si tout est validé
         List<Player> actualPlayers = findByClubId(clubId);
-        setClubID(null, actualPlayers);
+        setClubID(null, actualPlayers, clubId);
 
         // 3. Ajouter les nouveaux joueurs
         return addNewOrExistingPlayersInCLub(clubId, finalList);
     }
+
 
     public List<Player> addNewOrExistingPlayersInCLub(String id, List<Player> players) {
         List<Player> playerList = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection()) {
             for (Player player : players) {
+                transferRepository.registerTransfer(player.getId(), id, TransferType.IN);
                 try (PreparedStatement statement = connection.prepareStatement(
                         "insert into player (id, name, number, age, position, nationality, club_id) values (?, ?, ?, ?, ?::player_position, ?, ?) " +
                                 "on conflict (id) do update set " +

@@ -18,14 +18,37 @@ public class League {
 
     public League(){};
 
-    public String getId() {return id;}
-    public void setId(String id) {this.id = id;}
-    public String getLeagueNam() {return leagueNam;}
-    public void setLeagueNam(String leagueNam) {this.leagueNam = leagueNam;}
-    public List<Club> getClubs() {return clubs;}
-    public void setClubs(List<Club> clubs) {this.clubs = clubs;}
-    public String getCountry() {return country;}
-    public void setCountry(String country) {this.country = country;}
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getLeagueNam() {
+        return leagueNam;
+    }
+
+    public void setLeagueNam(String leagueNam) {
+        this.leagueNam = leagueNam;
+    }
+
+    public List<Club> getClubs() {
+        return clubs;
+    }
+
+    public void setClubs(List<Club> clubs) {
+        this.clubs = clubs;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
     @Override
     public boolean equals(Object o) {

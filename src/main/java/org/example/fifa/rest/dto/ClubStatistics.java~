@@ -33,28 +33,93 @@ public class ClubStatistics {
 
     public ClubStatistics(){};
 
-    public String getId() {return id;}
-    public void setId(String id) {this.id = id;}
-    public String getName() {return name;}
-    public void setName(String name) {this.name = name;}
-    public String getAcronym() {return acronym;}
-    public void setAcronym(String acronym) {this.acronym = acronym;}
-    public int getRankingPoints() {return rankingPoints;}
-    public int getScoredGoals() {return scoredGoals;}
-    public int getConcededGoals() {return concededGoals;}
-    public int getDifferenceGoals() {return differenceGoals;}
-    public int getCleanSheetNumber() {return cleanSheetNumber;}
-    public void setRankingPoints(int rankingPoints) {this.rankingPoints = rankingPoints;}
-    public void setScoredGoals(int scoredGoals) {this.scoredGoals = scoredGoals;}
-    public void setDifferenceGoals(int differenceGoals) {this.differenceGoals = differenceGoals;}
-    public void setConcededGoals(int concededGoals) {this.concededGoals = concededGoals;}
-    public void setCleanSheetNumber(int cleanSheetNumber) {this.cleanSheetNumber = cleanSheetNumber;}
-    public int getYearCreation() {return yearCreation;}
-    public void setYearCreation(int yearCreation) {this.yearCreation = yearCreation;}
-    public String getStadium() {return stadium;}
-    public void setStadium(String stadium) {this.stadium = stadium;}
-    public Coach getCoach() {return coach;}
-    public void setCoach(Coach coach) {this.coach = coach;}
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAcronym() {
+        return acronym;
+    }
+
+    public void setAcronym(String acronym) {
+        this.acronym = acronym;
+    }
+
+    public int getRankingPoints() {
+        return rankingPoints;
+    }
+
+    public int getScoredGoals() {
+        return scoredGoals;
+    }
+
+    public int getConcededGoals() {
+        return concededGoals;
+    }
+
+    public int getDifferenceGoals() {
+        return differenceGoals;
+    }
+
+    public int getCleanSheetNumber() {
+        return cleanSheetNumber;
+    }
+
+    public void setRankingPoints(int rankingPoints) {
+        this.rankingPoints = rankingPoints;
+    }
+
+    public void setScoredGoals(int scoredGoals) {
+        this.scoredGoals = scoredGoals;
+    }
+
+    public void setDifferenceGoals(int differenceGoals) {
+        this.differenceGoals = differenceGoals;
+    }
+
+    public void setConcededGoals(int concededGoals) {
+        this.concededGoals = concededGoals;
+    }
+
+    public void setCleanSheetNumber(int cleanSheetNumber) {
+        this.cleanSheetNumber = cleanSheetNumber;
+    }
+
+    public int getYearCreation() {
+        return yearCreation;
+    }
+
+    public void setYearCreation(int yearCreation) {
+        this.yearCreation = yearCreation;
+    }
+
+    public String getStadium() {
+        return stadium;
+    }
+
+    public void setStadium(String stadium) {
+        this.stadium = stadium;
+    }
+
+    public Coach getCoach() {
+        return coach;
+    }
+
+    public void setCoach(Coach coach) {
+        this.coach = coach;
+    }
 
     @Override
     public boolean equals(Object o) {

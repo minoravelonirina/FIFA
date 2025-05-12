@@ -20,9 +20,6 @@ public class PlayerMapper {
         player.setAge(rs.getInt("age"));
         player.setNationality(rs.getString("nationality"));
 
-//        player.setClubId(rs.getString("club_id"));
-
-        // Map Position enum
         String positionStr = rs.getString("position");
         if (positionStr != null) {
             try {

@@ -1,7 +1,6 @@
 package org.example.fifa.service;
 
 import org.example.fifa.model.Club;
-import org.example.fifa.model.Coach;
 import org.example.fifa.model.Player;
 import org.example.fifa.model.Season;
 import org.example.fifa.model.enums.Status;
@@ -27,7 +26,8 @@ public class ClubService {
 
 
     public ResponseEntity<Object> getClubList() throws SQLException {
-        List<Club> clubList = new ArrayList<>(clubRepository.findAll());
+//        List<Club> clubList = new ArrayList<>(clubRepository.findAll());
+        List<Club> clubList = new ArrayList<>(clubRepository.findAllTest());
         return ResponseEntity.status(HttpStatus.OK).body(clubList);
     }
 
@@ -68,7 +68,7 @@ public class ClubService {
         List<ClubStatistics> stats = clubRepository.getAllStatistic(seasonYear);
         Season season = seasonRepository.findByYear(seasonYear);
 
-        if (season.getStatus().equals(Status.FINISHED)){
+        if (!season.getStatus().equals(Status.FINISHED)){
             return ResponseEntity.badRequest().body("The season is not finished");
         }
         if (stats.isEmpty()) {

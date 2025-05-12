@@ -15,21 +15,10 @@ public class PlayerStatisticDto {
 
     public PlayerStatisticDto(){};
 
-    public int getScoredGoals() {
-        return scoredGoals;
-    }
-
-    public void setScoredGoals(int scoredGoals) {
-        this.scoredGoals = scoredGoals;
-    }
-
-    public PlayingTime getPlayingTime() {
-        return playingTime;
-    }
-
-    public void setPlayingTime(PlayingTime playingTime) {
-        this.playingTime = playingTime;
-    }
+    public int getScoredGoals() {return scoredGoals;}
+    public void setScoredGoals(int scoredGoals) {this.scoredGoals = scoredGoals;}
+    public PlayingTime getPlayingTime() {return playingTime;}
+    public void setPlayingTime(PlayingTime playingTime) {this.playingTime = playingTime;}
 
     @Override
     public boolean equals(Object o) {

@@ -23,53 +23,18 @@ public class Player {
 
     public Player(){};
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public Position getPosition() {
-        return position;
-    }
-
-    public void setPosition(Position position) {
-        this.position = position;
-    }
-
-    public String getNationality() {
-        return nationality;
-    }
-
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
-    }
+    public String getId() {return id;}
+    public void setId(String id) {this.id = id;}
+    public String getName() {return name;}
+    public void setName(String name) {this.name = name;}
+    public int getNumber() {return number;}
+    public void setNumber(int number) {this.number = number;}
+    public int getAge() {return age;}
+    public void setAge(int age) {this.age = age;}
+    public Position getPosition() {return position;}
+    public void setPosition(Position position) {this.position = position;}
+    public String getNationality() {return nationality;}
+    public void setNationality(String nationality) {this.nationality = nationality;}
 
     @Override
     public boolean equals(Object o) {

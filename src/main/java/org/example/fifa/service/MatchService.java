@@ -1,7 +1,6 @@
 package org.example.fifa.service;
 
 import org.example.fifa.model.Match;
-import org.example.fifa.model.RequestGoal;
 import org.example.fifa.model.Season;
 import org.example.fifa.model.enums.Status;
 import org.example.fifa.repository.MatchRepository;
@@ -9,14 +8,12 @@ import org.example.fifa.repository.SeasonRepository;
 import org.example.fifa.rest.dto.MatchDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,17 +28,17 @@ public class MatchService {
 
         List<MatchDto> matchList = matchRepository.findAll(seasonYear, null, null, null, null);
 
-//        if (!matchList.isEmpty()){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The list of matches for the specific season is already generated");
-//        }
+        if (!matchList.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The list of matches for the specific season is already generated");
+        }
         if (season == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The season is not found");
         }
-        if (!season.getStatus().equals(Status.STARTED)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( matchRepository.createAllMatches(seasonYear, matches));
+        if (season.getStatus().equals(Status.STARTED)){
+            return ResponseEntity.status(HttpStatus.OK).body(matchRepository.createAllMatches(seasonYear, matches));
         }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The season is not started or already finished");
 
-        return ResponseEntity.status(HttpStatus.OK).body(matchRepository.save(matches));
     }
 
 
@@ -61,9 +58,6 @@ public class MatchService {
         MatchDto match = matchRepository.getById(id);
         Status statusOfMatch = match.getActualStatus();
 
-        if (match == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The match with id = "+id+ " is not found");
-        }
         if (statusOfMatch.equals(Status.NOT_STARTED) && status.equals(Status.STARTED)
         || statusOfMatch.equals(Status.STARTED) && status.equals(Status.FINISHED)
         ){
@@ -74,13 +68,10 @@ public class MatchService {
 
 
 
-    public ResponseEntity<Object> addGoals(String id, List<RequestGoal> requestList){
+    public ResponseEntity<Object> addGoals(String id, List<Object> requestList){
         MatchDto match = matchRepository.getById(id);
         Status statusOfMatch = match.getActualStatus();
 
-        if (match == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The match with id = "+id+ " is not found");
-        }
         if (statusOfMatch.equals(Status.STARTED)){
             return ResponseEntity.ok(matchRepository.saveGoalsInMatch(id, requestList));
         }

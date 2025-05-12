@@ -19,8 +19,8 @@ public class PlayerStatisticMapper implements Function<ResultSet, PlayerStatisti
             PlayerStatisticDto playerStatisticDto = new PlayerStatisticDto();
             playerStatisticDto.setScoredGoals(resultSet.getInt("scored_goals"));
             PlayingTime time = new PlayingTime();
-            time.setValue(resultSet.getInt("minute_of_goal"));
-            time.setDurationUnit(DurationUnit.MINUTE);
+            time.setValue(32400);
+            time.setDurationUnit(DurationUnit.SECOND);
             playerStatisticDto.setPlayingTime(time);
             return playerStatisticDto;
         } catch (SQLException e) {

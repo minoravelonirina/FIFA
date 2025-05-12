@@ -481,14 +481,13 @@ Content-Type: application/json
 POST http://localhost:8080/matches/M6/goals
 Content-Type: application/json
 
-[
-  {
-    "clubId": "cl1",
-    "scorerIdentifier": "id3",
-    "minuteOfGoal": 90
-  }
-]
+["cl1", "id3", 90]
+
 
 ###
 PUT http://localhost:8080/matches/M6/status?
     status=STARTED
+
+
+UPDATE nom_table SET nom_colonne = nouvelle_valeur;
+ALTER TABLE nom_table RENAME COLUMN ancien_nom TO nouveau_nom;

@@ -44,7 +44,7 @@ public class CoachRepository {
     }
 
 
-    public Coach save(Coach coach) throws SQLException {
+    public void save(Coach coach) throws SQLException {
         try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(
                 "insert into coach (id, name, nationality) values (?, ?, ?) " +
@@ -63,9 +63,8 @@ public class CoachRepository {
             }
             try (ResultSet resultSet = statement.executeQuery()){
                 if (resultSet.next()){
-                    return coachMapper.apply(resultSet);
+                    coachMapper.apply(resultSet);
                 }
-                return null;
             }
         }
     }

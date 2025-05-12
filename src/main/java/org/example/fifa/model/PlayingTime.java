@@ -15,21 +15,10 @@ public class PlayingTime {
 
     public PlayingTime(){};
 
-    public int getValue() {
-        return value;
-    }
-
-    public void setValue(int value) {
-        this.value = value;
-    }
-
-    public DurationUnit getDurationUnit() {
-        return durationUnit;
-    }
-
-    public void setDurationUnit(DurationUnit durationUnit) {
-        this.durationUnit = durationUnit;
-    }
+    public int getValue() {return value;}
+    public void setValue(int value) {this.value = value;}
+    public DurationUnit getDurationUnit() {return durationUnit;}
+    public void setDurationUnit(DurationUnit durationUnit) {this.durationUnit = durationUnit;}
 
     @Override
     public boolean equals(Object o) {

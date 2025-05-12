@@ -24,53 +24,18 @@ public class Match {
         this.actualStatus = actualStatus;
     }
 
-    public Status getActualStatus() {
-        return actualStatus;
-    }
-
-    public void setActualStatus(Status actualStatus) {
-        this.actualStatus = actualStatus;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getMatchDatetime() {
-        return matchDatetime;
-    }
-
-    public void setMatchDatetime(LocalDateTime matchDatetime) {
-        this.matchDatetime = matchDatetime;
-    }
-
-    public String getStadium() {
-        return stadium;
-    }
-
-    public void setStadium(String stadium) {
-        this.stadium = stadium;
-    }
-
-    public Club getClubPlayingHome() {
-        return clubPlayingHome;
-    }
-
-    public void setClubPlayingHome(Club clubPlayingHome) {
-        this.clubPlayingHome = clubPlayingHome;
-    }
-
-    public Club getClubPlayingAway() {
-        return clubPlayingAway;
-    }
-
-    public void setClubPlayingAway(Club clubPlayingAway) {
-        this.clubPlayingAway = clubPlayingAway;
-    }
+    public Status getActualStatus() {return actualStatus;}
+    public void setActualStatus(Status actualStatus) {this.actualStatus = actualStatus;}
+    public String getId() {return id;}
+    public void setId(String id) {this.id = id;}
+    public LocalDateTime getMatchDatetime() {return matchDatetime;}
+    public void setMatchDatetime(LocalDateTime matchDatetime) {this.matchDatetime = matchDatetime;}
+    public String getStadium() {return stadium;}
+    public void setStadium(String stadium) {this.stadium = stadium;}
+    public Club getClubPlayingHome() {return clubPlayingHome;}
+    public void setClubPlayingHome(Club clubPlayingHome) {this.clubPlayingHome = clubPlayingHome;}
+    public Club getClubPlayingAway() {return clubPlayingAway;}
+    public void setClubPlayingAway(Club clubPlayingAway) {this.clubPlayingAway = clubPlayingAway;}
 
     @Override
     public boolean equals(Object o) {

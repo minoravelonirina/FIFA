@@ -1,8 +1,7 @@
 package org.example.fifa.rest.dto;
 
-
+import org.example.fifa.model.Scorer;
 import org.example.fifa.model.enums.Status;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -25,53 +24,18 @@ public class MatchDto {
 
     public MatchDto(){};
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getMatchDatetime() {
-        return matchDatetime;
-    }
-
-    public void setMatchDatetime(LocalDateTime matchDatetime) {
-        this.matchDatetime = matchDatetime;
-    }
-
-    public String getStadium() {
-        return stadium;
-    }
-
-    public void setStadium(String stadium) {
-        this.stadium = stadium;
-    }
-
-    public ClubWithGoalsDto getClubPlayingHome() {
-        return clubPlayingHome;
-    }
-
-    public void setClubPlayingHome(ClubWithGoalsDto clubPlayingHome) {
-        this.clubPlayingHome = clubPlayingHome;
-    }
-
-    public ClubWithGoalsDto getClubPlayingAway() {
-        return clubPlayingAway;
-    }
-
-    public void setClubPlayingAway(ClubWithGoalsDto clubPlayingAway) {
-        this.clubPlayingAway = clubPlayingAway;
-    }
-
-    public Status getActualStatus() {
-        return actualStatus;
-    }
-
-    public void setActualStatus(Status actualStatus) {
-        this.actualStatus = actualStatus;
-    }
+    public String getId() {return id;}
+    public void setId(String id) {this.id = id;}
+    public LocalDateTime getMatchDatetime() {return matchDatetime;}
+    public void setMatchDatetime(LocalDateTime matchDatetime) {this.matchDatetime = matchDatetime;}
+    public String getStadium() {return stadium;}
+    public void setStadium(String stadium) {this.stadium = stadium;}
+    public ClubWithGoalsDto getClubPlayingHome() {return clubPlayingHome;}
+    public void setClubPlayingHome(ClubWithGoalsDto clubPlayingHome) {this.clubPlayingHome = clubPlayingHome;}
+    public ClubWithGoalsDto getClubPlayingAway() {return clubPlayingAway;}
+    public void setClubPlayingAway(ClubWithGoalsDto clubPlayingAway) {this.clubPlayingAway = clubPlayingAway;}
+    public Status getActualStatus() {return actualStatus;}
+    public void setActualStatus(Status actualStatus) {this.actualStatus = actualStatus;}
 
     @Override
     public boolean equals(Object o) {
@@ -97,4 +61,5 @@ public class MatchDto {
                 ", actualStatus=" + actualStatus +
                 '}';
     }
+
 }

@@ -1,5 +1,6 @@
 package org.example.fifa.model;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Objects;
@@ -22,30 +23,14 @@ public class Coach {
 
     public Coach(){};
 
-    @JsonIgnore
-    public String getId() {
-        return id;
-    }
+    
+    public String getId() {return id;}
+    public void setId(String id) {this.id = id;}
+    public String getName() {return name;}
+    public void setName(String coachName) {this.name = coachName;}
+    public String getNationality() {return nationality;}
+    public void setNationality(String nationality) {this.nationality = nationality;}
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String coachName) {
-        this.name = coachName;
-    }
-
-    public String getNationality() {
-        return nationality;
-    }
-
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
-    }
 
     @Override
     public boolean equals(Object o) {

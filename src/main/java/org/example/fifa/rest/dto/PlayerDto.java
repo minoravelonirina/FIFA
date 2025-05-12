@@ -26,61 +26,20 @@ public class PlayerDto {
 
     public PlayerDto(){};
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Club getClub() {
-        return club;
-    }
-
-    public void setClub(Club club) {
-        this.club = club;
-    }
-
-    public Position getPosition() {
-        return position;
-    }
-
-    public void setPosition(Position position) {
-        this.position = position;
-    }
-
-    public String getNationality() {
-        return nationality;
-    }
-
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
-    }
+    public String getId() {return id;}
+    public void setId(String id) {this.id = id;}
+    public Club getClub() {return club;}
+    public void setClub(Club club) {this.club = club;}
+    public Position getPosition() {return position;}
+    public void setPosition(Position position) {this.position = position;}
+    public String getNationality() {return nationality;}
+    public void setNationality(String nationality) {this.nationality = nationality;}
+    public int getAge() {return age;}
+    public void setAge(int age) {this.age = age;}
+    public String getName() {return name;}
+    public void setName(String name) {this.name = name;}
+    public int getNumber() {return number;}
+    public void setNumber(int number) {this.number = number;}
 
     @Override
     public boolean equals(Object o) {

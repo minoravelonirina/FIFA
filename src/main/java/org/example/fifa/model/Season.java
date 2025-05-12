@@ -19,37 +19,14 @@ public class Season {
 
     public Season() {}
 
-    public int getYear() {
-        return year;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
+    public int getYear() {return year;}
+    public void setYear(int year) {this.year = year;}
+    public String getId() {return id;}
+    public void setId(String id) {this.id = id;}
+    public Status getStatus() {return status;}
+    public void setStatus(Status status) {this.status = status;}
+    public String getAlias() {return alias;}
+    public void setAlias(String alias) {this.alias = alias;}
 
     @Override
     public boolean equals(Object o) {

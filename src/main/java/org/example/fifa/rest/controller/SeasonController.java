@@ -36,7 +36,7 @@ public class SeasonController {
 
     @PutMapping("/{seasonYear}/status")
     public ResponseEntity<Object> updateSeasonStatus(
-            @PathVariable LocalDate seasonYear,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate seasonYear,
             @RequestBody UpdateSeasonStatusDto status) throws SQLException {
         return seasonService.updateStatus(seasonYear, status.getStatus());
     }

@@ -2,6 +2,7 @@ package org.example.fifa.repository;
 
 
 import org.example.fifa.model.Player;
+import org.example.fifa.model.Scorer;
 import org.example.fifa.model.enums.TransferType;
 import org.example.fifa.model.exception.NotFoundException;
 import org.example.fifa.repository.mapper.PlayerMapper;
@@ -202,14 +203,12 @@ public class PlayerRepository {
     public List<Player> changePlayersByClubId(String clubId, List<Player> newPlayers) throws SQLException {
         List<Player> finalList = new ArrayList<>();
 
-        // 1. Valider tous les joueurs à ajouter
         for (Player player : newPlayers) {
             PlayerDto playerDto = playerWithClubRepository.findByIdWithClub(player.getId());
 
             if (playerDto == null) {
                 finalList.add(player); // nouveau joueur
             } else if (playerDto.getClub() == null || playerDto.getClub().getId().equals(clubId)) {
-                // joueur existant, pas encore attaché
                 finalList.add(new Player(
                         playerDto.getId(),
                         playerDto.getName(),
@@ -219,17 +218,14 @@ public class PlayerRepository {
                         playerDto.getNationality()
                 ));
             } else {
-                // le joueur est déjà dans un autre club
                 throw new NotFoundException(HttpStatus.BAD_REQUEST,
                         "Player " + playerDto.getName() + " is already attached to another club");
             }
         }
 
-        // 2. Supprimer les anciens joueurs du club uniquement si tout est validé
         List<Player> actualPlayers = findByClubId(clubId);
         setClubID(null, actualPlayers, clubId);
 
-        // 3. Ajouter les nouveaux joueurs
         return addNewOrExistingPlayersInCLub(clubId, finalList);
     }
 
@@ -275,15 +271,17 @@ public class PlayerRepository {
 
 
     public PlayerStatisticDto findStatistics(String playerId, String seasonId) {
+        String sql = """
+    SELECT COUNT(*) AS scored_goals
+    FROM goal g
+    JOIN "match" m ON g.match_id = m.id
+    WHERE g.player_id = ?
+      AND g.own_goal = false
+      AND m.season_id = ?;
+""";
+
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "SELECT COUNT(*) AS scored_goals, g.minute_of_goal " +
-                             "FROM goal g " +
-                             "         JOIN \"match\" m ON g.match_id = m.id " +
-                             "WHERE g.player_id = ? " +
-                             "  AND g.own_goal = false " +
-                             "  AND m.season_id = ? " +
-                             "group by g.minute_of_goal ")) {
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, playerId);
             statement.setString(2, seasonId);
@@ -300,8 +298,8 @@ public class PlayerRepository {
     }
 
 
-    public List<ScorerDto> getScorerOfClub (String clubId) throws SQLException {
-        List<ScorerDto> list = new ArrayList<>();
+    public List<Scorer> getScorerOfClub (String clubId) throws SQLException {
+        List<Scorer> list = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
@@ -318,8 +316,8 @@ public class PlayerRepository {
     }
 
 
-    public List<ScorerDto> getScorerOfMatch (String clubId, String matchId) throws SQLException {
-        List<ScorerDto> list = new ArrayList<>();
+    public List<Scorer> getScorerOfMatch (String clubId, String matchId) throws SQLException {
+        List<Scorer> list = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
@@ -327,23 +325,33 @@ public class PlayerRepository {
              )){
             statement.setString(1, clubId);
             statement.setString(2, matchId);
+            statement.execute();
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     list.add(scorerDtoMapper(resultSet));
                 }
+                System.out.println("list = " + list);
                 return list;
             }
         }
     }
 
 
-    private ScorerDto scorerDtoMapper(ResultSet resultSet) throws SQLException {
-        ScorerDto scorerDto = new ScorerDto();
+    private Scorer scorerDtoMapper(ResultSet resultSet) throws SQLException {
+        PlayerScorerDto playerScorerDto;
+
+        String scorerId = resultSet.getString("id");
+        int minuteOfGoal = resultSet.getInt("minute_of_goal");
+        boolean isOwnGoal = resultSet.getBoolean("own_goal");
         Player player = findById(resultSet.getString("player_id"));
-        PlayerScorerDto playerScorerDto = new PlayerScorerDto(player.getId(), player.getName(), player.getNumber());
-        scorerDto.setPlayer(playerScorerDto);
-        scorerDto.setMinuteOfGoal(resultSet.getInt("minute_of_goal"));
-        scorerDto.setOwnGoal(resultSet.getBoolean("own_goal"));
-        return scorerDto;
+
+        if (player != null){
+            System.out.println(player);
+            playerScorerDto = new PlayerScorerDto(player.getId(), player.getName(), player.getNumber());
+
+            return new Scorer(scorerId, playerScorerDto, minuteOfGoal, isOwnGoal);
+        }
+        return new Scorer(scorerId, null, minuteOfGoal, isOwnGoal);
+
     }
 }

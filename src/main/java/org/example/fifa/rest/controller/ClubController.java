@@ -46,9 +46,4 @@ public class ClubController {
     public ResponseEntity<Object> getClubsStatistic(@PathVariable LocalDate seasonYear, @RequestParam boolean hasToBeClassified) throws SQLException {
         return clubService.getClubsStatistics(seasonYear.getYear(), hasToBeClassified);
     }
-
-    @GetMapping("/pong")
-    public String pong() {
-        return "GET PONG";
-    }
 }
